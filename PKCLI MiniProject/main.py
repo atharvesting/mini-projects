@@ -1,6 +1,6 @@
 from tasks import task_entry, task_query, task_summary
 from notes import note_entry, note_query
-from books import book_entry
+from books import book_entry, book_query
  
 def input_action():
     while True:
@@ -18,7 +18,9 @@ def input_action():
             mode = data_type()
             handle_summary(mode)
         elif action == "c":
+            print()
             print("PKCLI Shutting down...")
+            print()
             break
         else:
             print(f"Invalid value '{action}'. Please choose one of the listed options.")
@@ -36,8 +38,6 @@ def handle_entry(mode):
         book_entry()
     elif mode == "n":
         note_entry()
-    elif mode == "h":
-        habit_entry()
     else:
         print(f"Invalid entry type '{mode}'. Try again.")
 
@@ -47,14 +47,14 @@ def handle_query(mode):
         task_query()
     elif mode == "n":
         note_query()
+    elif mode == "b":
+        book_query()
     else:
         print(f"No querying supported for '{mode}' yet.")
 
 def handle_summary(mode):
     if mode == "t":
         task_summary()
-    elif mode == "h":
-        habit_summary()
     else:
         print(f"No summary available for '{mode}'.")
     

@@ -1,14 +1,8 @@
 from misc import confirmation, load_data, save_data, entry_date
-import json
 
 def note_entry():
     dic = {}
-    try:
-        with open("notes.json", "r") as notefile:
-            notes = json.load(notefile)
-    except (FileNotFoundError, json.JSONDecodeError):
-        notes = []
-        
+    notes = load_data("notes.json")     
     while True:
         note_title = input("Note title: ")
         note_contents = input("Note content: ")
@@ -19,23 +13,15 @@ def note_entry():
             break
         else:
             continue
-         
     today_date = entry_date()
-    
     dic = {
         "note_title": note_title,
         "note_content": note_contents,
         "date": today_date
     }
-    notes.append(dic)
-    with open("notes.json", "w") as notefile:
-        json.dump(notes, notefile, indent=4)
-        
-    print("Note entered successfully.")
-    print()
+    save_data("notes.json", notes, dic, "Book")
     
 def note_query():
-    with open("notes.json") as notefile:
-        notes = json.loads(notefile)
-        for item in notes:
-            print(item)
+    notes = load_data("notes.json")
+    for item in notes:
+        print(f"{item['note_title']}: {item['note_content']}")

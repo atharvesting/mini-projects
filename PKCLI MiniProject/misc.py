@@ -18,9 +18,12 @@ def load_data(filename):
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
-def save_data(filename, data):
+def save_data(filename: str, data: list, dic: dict, object: str):
+    data.append(dic)
     with open(filename, "w") as f:
         json.dump(data, f, indent=4)
+    print(f"{object} entered successfully")
+    print()
         
 def entry_date():
     today_date = datetime.today().strftime("%d.%m.%Y")  

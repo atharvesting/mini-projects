@@ -3,5 +3,10 @@
         "note_title": "First note",
         "note_content": "This is my first note. I am writing a program to keep a record of notes using Python.",
         "date": "21.07.2025"
+    },
+    {
+        "note_title": "here is a new new note ntoe",
+        "note_content": "her eis a s fasjfs fs",
+        "date": "22.07.2025"
     }
 ]
