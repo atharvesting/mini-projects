@@ -12,3 +12,7 @@
 - Implemented a working and customizable simulation.
 - Tested the simulation and found vulnerabilities + logical issues.
   - Tile for 1 left in a 2-or-more dice game -> Endless loop.
+- MVP DONE.
+
+2025-12-27
+- Wrote the README for the project.
