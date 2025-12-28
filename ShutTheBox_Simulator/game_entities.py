@@ -3,7 +3,7 @@ from random import randint
 from itertools import cycle
 from typing import Optional, Callable, Literal
 
-from ShutTheBox_Simulator.logic import mass_roller
+# from ShutTheBox_Simulator.logic import mass_roller
 from logic import get_distinct_parts
 from strategies import (most_numbers_first,
                         least_numbers_first,
@@ -97,14 +97,17 @@ class Player:
         return total'''
         return sum(self.roll_die() for _ in range(dice_count))
 
-    def choose_valid_combos(self, combo_list: set[frozenset[int]]) -> Optional[set[frozenset[int]]]:
+    def choose_valid_combos(self, combo_list: set[frozenset[int]], predefined_list: set[int]) -> Optional[
+        set[frozenset[int]]]:
         valid_set = set()
+        predefined_set = set(predefined_list)
+
         for combo in combo_list:
-            for num in combo:
-                if num in self.nums or num is None:
-                    break
-            else:
-                valid_set.add(combo)
+            # 1. ALL numbers must be in predefined_list
+            if all(num in predefined_set for num in combo):
+                # 2. NONE of the numbers can be in self.nums (discard if any match)
+                if any(num not in self.nums for num in combo):
+                    valid_set.add(combo)
 
         return valid_set if valid_set else None
 
@@ -207,7 +210,7 @@ class Game:
         self.p_count = p_count
         self.dice_count = dice_count
         self.available_nums = available_nums
-        self.players = [Player(i+1) for i in range(p_count)]
+        self.players = [Player(i + 1) for i in range(p_count)]
         # self.players = [
         #     Player(1, "most_numbers_first"),
         #     Player(2, "least_numbers_first"),
@@ -220,7 +223,7 @@ class Game:
             1: "winner",
             self.p_count: "loser"
         }
-        self.dice_probabilities = mass_roller(self.dice_count, 1000000)
+        # self.dice_probabilities = mass_roller(self.dice_count, 1000000)
 
     def __iter__(self):
         """Return the iterator object for the game class, which is an itertools.cycle."""
@@ -249,7 +252,6 @@ class Game:
             if self.is_game_over():
                 raise StopIteration
 
-
     def players_info(self):
         return [repr(player) for player in self.players]
 
@@ -275,10 +277,10 @@ class Game:
         print(player.p_id, player.status)
         dice_result = player.roll_n_dice(self.dice_count)
         print("Dice result:", dice_result)
-        if dice_result not in self.available_nums:
-            return
+        # if dice_result not in self.available_nums:
+        #     return
         combo_list: set[frozenset[int]] = get_distinct_parts(dice_result)
-        valid_set = player.choose_valid_combos(combo_list)
+        valid_set = player.choose_valid_combos(combo_list, self.available_nums)
         if not valid_set:
             return
         print("Possible combos: ", valid_set)

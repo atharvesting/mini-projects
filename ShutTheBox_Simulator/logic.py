@@ -1,4 +1,4 @@
-from ShutTheBox_Simulator.game_entities import Player
+# from game_entities import Player
 
 
 def find_pairs(n: int) -> list[tuple[int, int]]:
@@ -28,7 +28,7 @@ def get_distinct_parts(n: int) -> set[frozenset[int]]:
 
     return result
 
-def mass_roller(dice_count, roll_count):
+'''def mass_roller(dice_count, roll_count):
     num_dic = {i+1: 0 for i in range(dice_count * 6)}
     p = Player(1)
     for i in range(roll_count):
@@ -37,4 +37,4 @@ def mass_roller(dice_count, roll_count):
     for key, value in num_dic.items():
         num_dic[key] = value / roll_count
 
-    return num_dic
+    return num_dic'''

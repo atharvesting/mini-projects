@@ -16,3 +16,7 @@
 
 2025-12-27
 - Wrote the README for the project.
+
+2025-12-28
+- Made the gameplay more accurate.
+- Conducted basic investigations to determine optimal playing strategy.
