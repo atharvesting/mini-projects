@@ -5,18 +5,21 @@ import pandas as pd
 
 def validate_integrity(check: str = Literal["row", "column"]):
     def decorator(cleaner_func: Callable):
-        def wrapped(self, thresh: float = 0.75, tolerance: float = 0.75):
-            result = cleaner_func(thresh, tolerance)
-
-            if result is None:
-                return None
+        def wrapped(self, *args, **kwargs):
+            cleaner_func(self, *args, **kwargs)
 
             check_axis = 1 if check == "column" else 0
+            tolerance = kwargs.get("tolerance", 0.75)
 
-            if result.shape[check_axis] < tolerance * self.df.shape[check_axis]:
+            current_size = self.df.shape[check_axis]
+            original_size = self._og.shape[check_axis]
+
+            if current_size < (tolerance * original_size):
+                print(
+                    f"Integrity check failed: {check} count dropped below {tolerance * 100}%"
+                )
                 return None
-
-            return result
+            return None
 
         return wrapped
 
@@ -25,13 +28,12 @@ def validate_integrity(check: str = Literal["row", "column"]):
 
 class DataCleaner:
     def __init__(self, df: pd.DataFrame):
-        self.df = df
-        self.shape = df.shape
+        self.df: pd.DataFrame = df
+        self._og: pd.DataFrame = self.df.copy()
+        self.shape: tuple[int, int] = df.shape
 
     @validate_integrity(check="column")
-    def remove_bad_columns(
-            self, thresh: float = 0.8, tolerance: float = 0.75
-    ) -> Optional[pd.DataFrame]:
+    def remove_bad_columns(self, thresh: float = 0.8, tolerance: float = 0.75):
         """
         Removes columns with insufficient data
 
@@ -39,48 +41,25 @@ class DataCleaner:
         In case the number of columns reduces to under a certain percentage of the original data, the data is deemed
         unsuitable for further processing for the sake of the integrity of the program.
         """
-        return self.df.dropna(axis=1, thresh=int(thresh * self.df.shape[0]))
+        self.df.dropna(axis=1, thresh=int(thresh * self.df.shape[0]), inplace=True)
 
-    def remove_bad_rows(
-            self, thresh: float = 0.75, tolerance: float = 0.75
-    ) -> Optional[pd.DataFrame]:
+    @validate_integrity(check="row")
+    def remove_bad_rows(self, thresh: float = 0.9, tolerance: float = 0.75):
         """
-        Removes columns with insufficient data.
+        Removes rows with insufficient data.
 
-        Default = >75% values missing.
-        In case the number of columns reduces to under a certain percentage of the original data, the data is deemed
+        Default = Remove row if <90% values available.
+        In case the number of rows reduces to under a certain percentage of the original data, the data is deemed
         unsuitable for further processing for the sake of the integrity of the program.
         """
-        updated_df = self.df.dropna(axis=0, thresh=int(thresh * self.df.shape[1]))
-        if updated_df.shape[0] < tolerance * self.df.shape[0]:
-            return None
-        return updated_df
+        self.df.dropna(axis=0, thresh=int(thresh * self.df.shape[1]), inplace=True)
 
-    @staticmethod
-    def _safe_drop(cleaner_func: Callable, *args, **kwargs) -> Optional[pd.DataFrame]:
-        result = cleaner_func(*args, **kwargs)
-        return result if result is not None else None
+    def drop_bad_rows_columns(self, thresh: float = 0.75, tolerance: float = 0.75):
+        self.remove_bad_rows(thresh=thresh, tolerance=tolerance)
+        self.remove_bad_columns(thresh=thresh, tolerance=tolerance)
 
-    @validate_integrity("row")
-    def drop_bad_rows_columns(
-            self, thresh: float = 0.75, tolerance: float = 0.75
-    ) -> Optional[pd.DataFrame]:
-        updated_df = self._safe_drop(
-            cleaner_func=self.remove_bad_columns, thresh=thresh, tolerance=tolerance
-        )
-        if updated_df is None:
-            return None
-        return self._safe_drop(
-            cleaner_func=self.remove_bad_rows, thresh=thresh, tolerance=tolerance
-        )
+    @validate_integrity(check="row")
+    def remove_duplicates(self, tolerance: float = 0.75):
+        updated_df = self.df.drop_duplicates(keep="first", inplace=True)
 
-    def remove_duplicates(
-            self, thresh: float = 0.75, tolerance: float = 0.75
-    ) -> Optional[pd.DataFrame]:
-        updated_df = self.df.drop_duplicates(keep="first")
-        if updated_df.shape[0] < tolerance * self.df.shape[0]:
-            return None
-        return updated_df
-
-    def run_main_cleaner(self):
-        ...
+    def run_main_cleaner(self): ...
