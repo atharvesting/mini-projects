@@ -1,0 +1,31 @@
+# The following source code is only for showcase. This code is functional inside the atharvesting/dsa repository.
+
+name: Run Python Automation Script
+
+on: [push]
+
+jobs:
+    run-ai:
+        runs-on: ubuntu-latest
+        permissions:
+          contents: write
+          
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                python-version: '3.11'
+
+            - name: Install Dependencies
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+
+            - name: Run Script
+              env:
+                GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+              run: python auto.py
+
