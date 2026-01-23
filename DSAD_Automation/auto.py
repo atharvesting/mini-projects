@@ -1,7 +1,6 @@
 """
 The following source code is only for showcase. This code is functional inside the atharvesting/dsa repository.
 """
-
 from google import genai
 from google.genai import types
 import os
@@ -60,12 +59,10 @@ Task: Convert raw, messy, and unformatted C++ source file comments into a polish
 {Content from @LEARNINGS: Synthesize the separate points into a single reflective paragraph.}
 """
 
-
 config = types.GenerateContentConfig(
     system_instruction=system_instruction,
     temperature=0.85
 )
-
 
 def process_file(file_contents: str):
     response = client.models.generate_content(
@@ -76,6 +73,7 @@ def process_file(file_contents: str):
     return response.text
 
 def iterate_repo():
+    success_files = []
     root = pathlib.Path(".")
     current_script = pathlib.Path(__file__).name
     with open("published.txt", "r") as p: 
@@ -86,20 +84,24 @@ def iterate_repo():
             try:
                 with open(file_path.name, "r", encoding="utf-8") as f:
                     file_content = f.read()
-                    if not re.search(r'publish:\s*true', file_content, re.IGNORECASE):
+                    if not re.search(r'publish:\s*(true|yes|1)', file_content, re.IGNORECASE):
                         continue
                 
                 blog_post = process_file(file_content)
                 
                 if blog_post:
-        
                     with open(f"post_{file_path.stem}.md", "w", encoding="utf-8") as o:
                         o.write(blog_post)
-                        with open("published.txt", "a") as p:
-                            p.write(file_path.name)
+                            
+                    success_files.append(file_path.name)
                         
             except Exception as e:
                 print(f"Failed to process {file_path.name}: {e}")
+                
+    if success_files:
+        with open("published.txt", "a") as p:
+            for name in success_files:
+                p.write(f"{name}\n")
                 
 if __name__ == "__main__":
     iterate_repo()

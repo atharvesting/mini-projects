@@ -29,3 +29,19 @@ jobs:
                 GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
               run: python auto.py
 
+            - name: Commit and Push
+              # --quiet flag quiety checks for changes
+              run: |
+                git config --global user.name "github-actions[bot]"
+                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+                DATE_STR=$(date + '%Y-%m-%d')
+
+                git add .
+
+                if git diff --staged --quiet; then
+                  echo "No changes to commit"
+                else
+                  git commit -m "AUTO_$DATE_STR"
+                  git push origin main
+                fi
