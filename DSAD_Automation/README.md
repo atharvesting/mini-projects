@@ -18,3 +18,12 @@ Learnt about:
 - GitHub Secrets
 - Environment variables (.env)
 - System prompt engineering
+
+## Phase 1: MVP (DONE)
+- Generate blog posts from DSA solutions source code
+
+## Phase 2: Integration with another repository (WIP)
+- Auto-send blog posts to personal website
+
+## Phase 3: Supplementary features (TODO)
+- AI-generated automatic promotional post on X
