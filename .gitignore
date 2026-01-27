@@ -1,3 +1,5 @@
 /AdvaDS/.venv/
 /AdvaDS/.idea/
 /Console_FPS/.vs
+.vscode
+.idea
