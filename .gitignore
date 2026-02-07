@@ -1,5 +1,11 @@
 /AdvaDS/.venv/
 /AdvaDS/.idea/
-/Console_FPS/.vs
+/Console_FPS/.vs/
 .vscode
 .idea
+/LULC_Mapping/.venv/
+/Portfolio/node_modules/
+/Portfolio/.env.local
+/StemLeaf_Generator/.vs/
+/StemLeaf_Generator/StemLeaf.c2fb1155/
+/StemLeaf_Generator/x64/

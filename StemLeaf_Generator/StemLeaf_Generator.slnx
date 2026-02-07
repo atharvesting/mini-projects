@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Console_FPS.vcxproj" Id="2cf2e654-36a8-41b2-a3c3-cedc94061e33" />
+  <Project Path="StemLeaf_Generator.vcxproj" />
 </Solution>
