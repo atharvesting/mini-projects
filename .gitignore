@@ -9,3 +9,12 @@
 /StemLeaf_Generator/.vs/
 /StemLeaf_Generator/StemLeaf.c2fb1155/
 /StemLeaf_Generator/x64/
+/LULC_Mapping/clipped_images/
+/LULC_Mapping/LC09_L2SP_147041_20260124_20260125_02_T1/
+**/.venv/
+**/.vs/
+**/.vscode/
+**/.idea/
+/Console_FPS/x64/
+**/x64/
+__pycache__/

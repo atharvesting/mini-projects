@@ -14,8 +14,8 @@ Simple C++ program to generate a Stem and Leaf plot from given numerical data.
 - [ ] Sorted DS + Output (Sorted Stems, Sorted Leaf)
 
 ### Optional:
-- [ ] Outlier detection and exclusion
 - [ ] Basic Statistics
+- [ ] Outlier detection and exclusion
 
 ## Lessons Learned
 - Planned the implementation in advance which led to a drastically shorter development time in comparison to past projects.

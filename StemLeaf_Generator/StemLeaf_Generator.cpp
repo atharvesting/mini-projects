@@ -49,12 +49,3 @@ void print_tree(vector<struct StemLeaf> tree) {
         cout << endl;
     }
 }
-
-/*
-* For every number in the data:
-* check if it is in the map
-* if it is, continue
-* if not, then insert pre into map, create new struct in tree and get its idx
-* 
-* access its struct using the idx tracked in the map and append post to leaf
-*/
