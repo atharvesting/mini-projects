@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="Consalgo_Visualizer.vcxproj" Id="c6a8dfd4-5d31-4dc0-b77a-7e8bf30b287a" />
+</Solution>

@@ -51,16 +51,16 @@ int main()
     map += L"################";  // L prefix necessary to indicate string containing wide characters (wchar_t)
     map += L"#..............#";
     map += L"#..............#";
-    map += L"#........#######";
+    map += L"#.......########";
+    map += L"#.......#......#";
+    map += L"#.......#......#";
+    map += L"#.......#......#";
+    map += L"#.......#......#";
     map += L"#..............#";
     map += L"#..............#";
-    map += L"#......#.......#";
-    map += L"#......#.......#";
     map += L"#..............#";
+    map += L"#######........#";
     map += L"#..............#";
-    map += L"#..............#";
-    map += L"##########.....#";
-    map += L"#........#.....#";
     map += L"#..............#";
     map += L"#..............#";
     map += L"################";
@@ -77,7 +77,7 @@ int main()
         *   Unplayably fast rotation in a fast system (0.001s per loop), Speed ~ 2000 units of rotation per second
         *   Very slow rotation in a slow system (0.1 per loop), Speed ~ 20 units of rotation per second
         * 
-        * fElapsedTime calculates time between loops and uses S=D/T to make movement speeds consistent across devices.
+        * fElapsedTime calculates time between loops and uses S=D/T to make movement speeds consistent across devices by adapting D according to T
         */
         tp2 = chrono::system_clock::now();
         chrono::duration<float> elapsedTime = tp2 - tp1;
@@ -149,7 +149,9 @@ int main()
             float fRayAngle = (fPlayerA - fHalfFOV) + ((float)x / (float)nScreenWidth) * fFOV;
 
             float fDistanceToWall = 0;  // Initialize the distance from player to wall for every ray that is cast.
-            bool bHitWall = false;
+            
+            // For each ray that is shot, initialize the state variables as false
+            bool bHitWall = false;  
             bool bBoundary = false;
 
             // Unit vectors for the player. Purely to indicate direction separately in horizontal and vertical directions.
