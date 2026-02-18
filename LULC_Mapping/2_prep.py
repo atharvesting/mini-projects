@@ -1,75 +1,46 @@
 import rasterio
 import numpy as np
 import matplotlib.pyplot as plt
+from pyproj import Transformer
+import pandas as pd
 
+coord_data = pd.read_csv('training_data_points.csv')
+
+# Load the data of all bands
 bands = []
 for i in range(1, 8):
     with rasterio.open(f'clipped_images/jaipur_clipped_B{i}.TIF') as src:
         bands.append(src.read(1))
-        
-print(bands[0].shape)
+        if i == 1:
+            meta = src.crs
+            transform = src.transform
+         
+stack = np.stack(bands)
 
-def contrast_stretch(band):
-    p2, p98 = np.percentile(band, (2, 98))
-    stretched = np.clip(band, p2, p98)
-    return (stretched - p2) / (p98 - p2)
+tf = Transformer.from_crs("EPSG:4326", "EPSG:32643", always_xy=True)
+coord_data['X_utm'], coord_data['Y_utm'] = tf.transform(
+    coord_data['X'].values, 
+    coord_data['Y'].values
+)
 
-def scale(band):
-    s = (band.astype(float) * 0.0000275) - 0.2
-    return np.clip(s, 0, 1)
+with rasterio.open('clipped_images/jaipur_clipped_B1.TIF') as src:
+    x_coords = coord_data['X_utm'].values
+    y_coords = coord_data['Y_utm'].values
+    
+    from rasterio.transform import rowcol
+    rows, cols = rowcol(transform, x_coords, y_coords)
+    rows = np.array(rows).astype(int)
+    cols = np.array(cols).astype(int)
+    
+pixel_values = stack[:, rows, cols].T
 
-def process_band(band):
-    final = scale(band)
-    final = contrast_stretch(final)
-    return final
+band_names = [f'B{i}' for i in range(1, 8)]
+spectral_df = pd.DataFrame(pixel_values, columns=band_names)
 
-"""# Landsat 8/9: B4=Red, B3=Green, B2=Blue
-r = process_band(bands[3])
-g = process_band(bands[2])
-b = process_band(bands[1])
+final = pd.concat([coord_data, spectral_df], axis=1)  
 
-image_array = np.dstack((r, g, b))
-image = plt.imshow(image_array, interpolation='nearest', aspect='equal')
+final['NDVI'] = (final['B5'] - final['B4']) / (final['B5'] + final['B4'] + 1e-10)
+final['NDWI'] = (final['B3'] - final['B5']) / (final['B3'] + final['B5'] + 1e-10)
+final['NDBI'] = (final['B6'] - final['B5']) / (final['B6'] + final['B5'] + 1e-10)
 
-plt.savefig('fig3.png', format='png', dpi=1200)
-plt.axis('off')
-plt.show()"""
-
-# Feature Engineering
-
-# NDVI (Normalized Difference Vegetation Index)
-#    = (NIR - Red) / (NIR + Red)
-
-nir = scale(bands[4])
-red = scale(bands[3])
-
-ndvi = (nir - red) / (nir + red + 1e-10)
-
-plt.figure(figsize=(10, 8))
-plt.imshow(ndvi, cmap='RdYlGn')
-plt.colorbar(label='NDVI Value')
-plt.title("Jaipur Vegetation Health (NDVI)")
-plt.show()
-
-# NDWI (Normalized Difference Water Index)
-#   = (Green - NIR) / (Green + NIR)
-
-green = scale(bands[2]) # Green is Band 3 in LANDSAT 9
-ndwi = (green - nir) / (green + nir + 1e-10)
-
-plt.figure(figsize=(10, 8))
-plt.imshow(ndwi, cmap='RdYlGn')
-plt.colorbar(label='NDVI Value')
-plt.title("Jaipur Water Bodies (NDWI)")
-plt.show()
-
-# NDBI (Normalized Difference Built-Up Index)
-#   = (SWIR - NIR) / (SWIR + NIR)
-
-swir = scale(bands[5]) # SWIR is Band 6 in LANDSAT 9
-ndbi = (swir - nir) / (swir + nir + 1e-10)
-
-plt.imshow(ndbi, cmap='magma')
-plt.colorbar(label='NDBI Value')
-plt.title("Jaipur Urban Density (NDBI)")
-plt.show()
+final.to_csv('data.csv')

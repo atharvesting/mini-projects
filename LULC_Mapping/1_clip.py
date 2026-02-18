@@ -46,7 +46,8 @@ for i in range(1, 8):
         clipped_meta.update({
             'height': clipped_image.shape[1],  
             'width': clipped_image.shape[2],
-            'transform': clipped_transform
+            'transform': clipped_transform,
+            'crs': src.crs
         })
         
         # Saving the new clipped file

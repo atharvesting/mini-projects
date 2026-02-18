@@ -1,11 +1,14 @@
-import rasterio
-import numpy as np
+from collections import Counter
+import pandas as pd
 import matplotlib.pyplot as plt
 
-with rasterio.open('clipped_images/jaipur_clipped_B1.TIF','r') as src:
-    red_band = src.read(1)
-    metadata = src.meta
-    
-plt.imshow(red_band, cmap='winter')
-plt.colorbar()
+df = pd.read_csv("data.csv")
+
+classes = Counter(df['class'])
+
+plt.bar(list(classes.keys()), list(classes.values()))
+plt.xlabel("Classes")
+plt.ylabel("Datapoint count")
+plt.title("Class Imbalance in Data")
 plt.show()
+
