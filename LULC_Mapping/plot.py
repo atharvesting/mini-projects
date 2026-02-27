@@ -24,7 +24,7 @@ def process_band(band):
     final = contrast_stretch(final)
     return final
 
-"""# Landsat 8/9: B4=Red, B3=Green, B2=Blue
+# Landsat 8/9: B4=Red, B3=Green, B2=Blue
 r = process_band(bands[3])
 g = process_band(bands[2])
 b = process_band(bands[1])
@@ -34,7 +34,7 @@ image = plt.imshow(image_array, interpolation='nearest', aspect='equal')
 
 plt.savefig('fig3.png', format='png', dpi=1200)
 plt.axis('off')
-plt.show()"""
+plt.show()
 
 # Feature Engineering
 

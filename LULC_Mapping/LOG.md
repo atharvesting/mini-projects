@@ -7,3 +7,9 @@
 2026-02-10:
 - Wrote the clipping script.
 - Used it to clip original satellite band imagery to a workable size.
+
+2026-02-18:
+- Wrote the 
+
+2026-02-19:
+- 

@@ -43,4 +43,5 @@ final['NDVI'] = (final['B5'] - final['B4']) / (final['B5'] + final['B4'] + 1e-10
 final['NDWI'] = (final['B3'] - final['B5']) / (final['B3'] + final['B5'] + 1e-10)
 final['NDBI'] = (final['B6'] - final['B5']) / (final['B6'] + final['B5'] + 1e-10)
 
+
 final.to_csv('data.csv')
