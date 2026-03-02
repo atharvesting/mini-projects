@@ -13,7 +13,12 @@
 ## List of all mini projects:
 
 ### Self-developed:
-- [Console FPS](Console_FPS) (WIP): Guided project for 2d raycasting game engine.
+
+- [Adaptive Markov Chain Text Predictor](Markov_Predictor) (WIP): C++ Program that predicts the next word you type based on an n-gram model built in real time or with a pre-training text file.
+
+- [Consalgo Visualiser](Consalgo_Visualizer) (MVP): Minimal but interactive visualisation of sorting algorithms written in C++.
+
+- [Console FPS](Console_FPS) (WIP): Guided project for 2d raycasting game engine (YT: One Lone Coder)
 
 - [LULC Classification](LULC_Mapping) (WIP): Custom supervised classification model to map land use and land cover in the Jaipur, Rajasthan region.
 

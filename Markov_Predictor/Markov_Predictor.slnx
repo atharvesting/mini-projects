@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="StemLeaf_Generator.vcxproj" Id="c2fb1155-5403-465f-ae47-71c46c609701" />
+  <Project Path="Markov_Predictor.vcxproj" />
 </Solution>
