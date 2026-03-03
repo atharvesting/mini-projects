@@ -5,14 +5,16 @@
 #include <algorithm>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
+#include <random>
+
 using namespace std;
 
 void preprocessString(string& s) 
 {
-    // Removing Punctuation, Lowercase, Adding a Whitespace at End
+    // Removing Punctuation, Lowercase
     s.erase(remove_if(s.begin(), s.end(), [](unsigned char c) { return ispunct(c); }), s.end());
     transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return tolower(c); });
-    s.push_back(' ');  // (char)" " does not work!
 }
 
 vector<string> string2Array(string& s) 
@@ -20,15 +22,14 @@ vector<string> string2Array(string& s)
     vector<string> words;
     int pos = 0;
     preprocessString(s);
-    
-    for (int i = 0; i < s.size(); i++)
-    {
-        if (isspace(s[i]))
-        {
-            words.push_back(s.substr(pos, i - pos));
-            pos = i + 1;
-        }
+
+    stringstream ss(s);
+    string temp;
+
+    while (ss >> temp) {
+        words.push_back(temp);
     }
+
     return words;
 }
 
@@ -51,52 +52,19 @@ map<string, map<string, int>> array2Map(const vector<string>& v)
 
 void testMapper(map<string, map<string, int>>& a) 
 {
-    for (const auto& m : a) {
+    for (const auto& m : a) 
+    {
         cout << "------" << m.first << "------" << "\n";
-        for (auto n : m.second) {
+        for (auto n : m.second) 
+        {
             cout << n.first << ": " << n.second << "\n";
         }
         cout << "\n";
     }
 }
 
-string readFile(string file_name) {
-    ifstream file(file_name);
-    string s, file_contents;
-    while (getline(file, s))
-    {
-        file_contents += s;
-        file_contents.push_back(' ');
-    }
-    file.close();
-
-    return file_contents;
-}
-
-map<string, map<string, int>> string2Map(string& s) {
-    vector<string> a = string2Array(s);
-    return array2Map(a);
-}
-
-int nextWordsfSum(map<string, int>& a) {
-    int total = 0;
-    for (auto n : a) {
-        total += n.second;
-    }
-    return total;
-}
-
-
-int main()
+void testProbabilities(auto m, string w)
 {
-    auto file_contents = readFile("test.txt");
-    auto m = string2Map(file_contents);
-    testMapper(m);
-    
-    string w;
-    cout << "Enter a word: ";
-    cin >> w;
-
     if (m.find(w) != m.end())
     {
         double total = nextWordsfSum(m[w]);
@@ -104,7 +72,79 @@ int main()
             cout << a.first << ": P -> " << setprecision(5) << a.second / total << "\n";
         }
     }
-    
-    //string test = "this is a example of a sentence where sentence is a group of word of example and a group this is";
+}
+
+string readFile(string file_name) {
+
+    ifstream file(file_name);
+    string s, file_contents;
+
+    ostringstream ss;
+    ss << file.rdbuf();
+
+    return ss.str();
+}
+
+map<string, map<string, int>> string2Map(string& s) 
+{
+    vector<string> a = string2Array(s);
+    return array2Map(a);
+}
+
+int nextWordsfSum(map<string, int>& a) 
+{
+    int total = 0;
+    for (auto n : a) {
+        total += n.second;
+    }
+    return total;
+}
+
+double randomNumGenerator(void) {
+    static random_device rd;  // Seed: Hardware entropy source
+    static mt19937 gen(rd()); // Engine: Mersenne Twister
+    static uniform_real_distribution<double> dis(0.0f, 1.0f);
+
+    return dis(gen);
+}
+
+
+void startPredictionLoop(map<string, map<string, int>>& fMap, string start)
+{
+    int i = 0;
+    string current = start;
+    cout << start << " ";
+    while (i < 10) 
+    {
+        if (fMap.find(current) == fMap.end()) break;
+
+        double r = randomNumGenerator();
+        double cumulative_prob = 0.0f;
+        map<string, int> temp = fMap.at(current);
+
+        int total = nextWordsfSum(temp);
+
+        for (const auto& [word, count] : temp)
+        {
+            // Inverse transform sampling to choose next word (Thought of this approach myself!)
+            cumulative_prob += (double)count / total;
+            if (cumulative_prob >= r)
+            {
+                cout << word << " ";
+                i++;
+                current = word;
+                break;
+            }
+        }
+    }
+    cout << "\n\nPrediction terminated!" << endl;
+}
+
+int main()
+{
+    auto file_contents = readFile("test.txt");
+    auto m = string2Map(file_contents);
+    startPredictionLoop(m, "with");
+
     return 0;
 }

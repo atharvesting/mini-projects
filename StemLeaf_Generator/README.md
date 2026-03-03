@@ -11,7 +11,7 @@ Simple C++ program to generate a Stem and Leaf plot from given numerical data.
 - [x] Core stem leaf data generation (MVP)
 - [ ] Data Import functionality (CSV, HDF5)
 - [ ] Performance upgrade
-- [ ] Sorted DS + Output (Sorted Stems, Sorted Leaf)
+- [x] Sorted DS + Output (Sorted Stems, Sorted Leaf)
 
 ### Optional:
 - [ ] Basic Statistics
