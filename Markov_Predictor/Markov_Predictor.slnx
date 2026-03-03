@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Markov_Predictor.vcxproj" />
+  <Project Path="Markov_Predictor.vcxproj" Id="bc3fe83d-021b-4947-a152-1abb2354d8a8" />
 </Solution>

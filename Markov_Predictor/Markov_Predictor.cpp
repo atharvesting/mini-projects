@@ -2,12 +2,25 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
 using namespace std;
 
-vector<string> string2Array(string& s) {
+void preprocessString(string& s) 
+{
+    // Removing Punctuation, Lowercase, Adding a Whitespace at End
+    s.erase(remove_if(s.begin(), s.end(), [](unsigned char c) { return ispunct(c); }), s.end());
+    transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return tolower(c); });
+    s.push_back(' ');  // (char)" " does not work!
+}
+
+vector<string> string2Array(string& s) 
+{
     vector<string> words;
     int pos = 0;
-    s.push_back(' ');  // (char)" " does not work!
+    preprocessString(s);
+    
     for (int i = 0; i < s.size(); i++)
     {
         if (isspace(s[i]))
@@ -19,7 +32,8 @@ vector<string> string2Array(string& s) {
     return words;
 }
 
-map<string, map<string, int>> array2Map(vector<string>& v) {
+map<string, map<string, int>> array2Map(const vector<string>& v) 
+{
     map<string, map<string, int>> fMap;
 
     for (int i = 0; i < v.size(); i++) {
@@ -27,35 +41,70 @@ map<string, map<string, int>> array2Map(vector<string>& v) {
 
         if (i != v.size() - 1) 
         {
-            if (fMap[v[i]].find(v[i + 1]) == fMap[v[i]].end()) 
-            {
-                fMap[v[i]][v[i + 1]] = 0;
-            }
+            // Adding 1 to the Value of the inner map for each next word
+            // The next word is auto added and initialized to 0 if it doesn't exist
             fMap[v[i]][v[i + 1]]++;
         }
     }
     return fMap;
 }
 
-void testMapper(map<string, map<string, int>>& a) {
-    for (auto m : a) {
-        cout << "Word: " << m.first << "\n";
+void testMapper(map<string, map<string, int>>& a) 
+{
+    for (const auto& m : a) {
+        cout << "------" << m.first << "------" << "\n";
         for (auto n : m.second) {
             cout << n.first << ": " << n.second << "\n";
         }
-        cout << "_________\n";
+        cout << "\n";
     }
 }
 
+string readFile(string file_name) {
+    ifstream file(file_name);
+    string s, file_contents;
+    while (getline(file, s))
+    {
+        file_contents += s;
+        file_contents.push_back(' ');
+    }
+    file.close();
+
+    return file_contents;
+}
+
+map<string, map<string, int>> string2Map(string& s) {
+    vector<string> a = string2Array(s);
+    return array2Map(a);
+}
+
+int nextWordsfSum(map<string, int>& a) {
+    int total = 0;
+    for (auto n : a) {
+        total += n.second;
+    }
+    return total;
+}
+
+
 int main()
 {
-    string test = "this is a example of a sentence where sentence is a group of word of example and a group this is";
-
-    auto a = string2Array(test);
-
-    auto m = array2Map(a);
-
+    auto file_contents = readFile("test.txt");
+    auto m = string2Map(file_contents);
     testMapper(m);
+    
+    string w;
+    cout << "Enter a word: ";
+    cin >> w;
 
+    if (m.find(w) != m.end())
+    {
+        double total = nextWordsfSum(m[w]);
+        for (auto a : m[w]) {
+            cout << a.first << ": P -> " << setprecision(5) << a.second / total << "\n";
+        }
+    }
+    
+    //string test = "this is a example of a sentence where sentence is a group of word of example and a group this is";
     return 0;
 }
