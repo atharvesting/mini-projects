@@ -130,7 +130,8 @@
     <ClCompile Include="Markov_Predictor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="test.txt" />
+    <Text Include="cat.txt" />
+    <Text Include="school.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

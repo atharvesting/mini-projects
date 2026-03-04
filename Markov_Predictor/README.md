@@ -3,7 +3,7 @@
 **Language(s) used:** C++
 
 **Short description:**
-- A text prediction system that uses Markov chains to analyze word transitions.
+- A bigram (trigram WIP) text prediction system that uses Markov chains to analyze word transitions.
 - Reads a text file, builds a probabilistic model of word sequences, and generates predictions.
 - Uses inverse transform sampling to select the next word based on learned probabilities.
 

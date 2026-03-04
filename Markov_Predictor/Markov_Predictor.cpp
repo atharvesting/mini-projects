@@ -108,13 +108,12 @@ double randomNumGenerator(void) {
     return dis(gen);
 }
 
-
-void startPredictionLoop(map<string, map<string, int>>& fMap, string start)
+void startPredictionLoop(map<string, map<string, int>>& fMap, string start, unsigned int word_count)
 {
     int i = 0;
     string current = start;
     cout << start << " ";
-    while (i < 10) 
+    while (i < word_count) 
     {
         if (fMap.find(current) == fMap.end()) break;
 
@@ -142,9 +141,9 @@ void startPredictionLoop(map<string, map<string, int>>& fMap, string start)
 
 int main()
 {
-    auto file_contents = readFile("test.txt");
+    auto file_contents = readFile("school.txt");
     auto m = string2Map(file_contents);
-    startPredictionLoop(m, "with");
+    startPredictionLoop(m, "and", 20);
 
     return 0;
 }
