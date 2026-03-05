@@ -3,6 +3,7 @@
 /Console_FPS/.vs/
 .vscode
 .idea
+/YT2Notes/Notes
 /LULC_Mapping/.venv/
 /Portfolio/node_modules/
 /Portfolio/.env.local
@@ -20,3 +21,4 @@
 **/x64/
 __pycache__/
 /Markov_Predictor/Markov_Predictor
+/zAdvaDS/data

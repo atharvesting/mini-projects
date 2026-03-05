@@ -1,3 +1,27 @@
+# Hack_A_Known (Vibe-coded)
+> React Webapp for a curated list of past, ongoing, and upcoming hackathons for easy discovery and tracking..
+
+## Overview
+* **Status:** MVP
+* **Started:** 2026-03-04
+* **Core Stack:** Next.js, React
+* **Domain:** Vibe-coding, Web Development
+
+## Objectives
+To save the time of students, professionals, and other technical enthusiasts in finding suitable hackathons.
+
+## Tech Stack & Key Concepts
+* **Languages:** JavaScript, Tailwind CSS
+* **Libraries/Tools:** Next.js, Vercel, GitHub Copilot
+
+## Roadmap & Features
+- [x] **Phase 1: MVP** - Scaffolding with create-next-app.
+- [x] **Phase 2: Core Logic** - Implementing primary features.
+- [x] **Phase 3: Deployment** - Deployment on Vercel.
+- [/] **Phase 4: Miscellaneous** - Analytics, marketing etc.
+
+## How to Run
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started

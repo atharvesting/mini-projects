@@ -1,15 +1,31 @@
 # Console FPS
+> A guided project focused on building a basic 3D gaming engine in a 2D terminal.
 
-**Started:** 2026-12-26
+## Overview
+* **Status:** ✅
+* **Started:** 2026-12-26
+* **Core Stack:** C++
+* **Domain:** Game Dev / Systems
 
-**MVP:** NA
+## Objectives
+To implement raycasting in a headless console environment to understand 3D projection and build a functional FPS environment using ASCII characters. 
 
-**Language(s) used:** C++
+## Tech Stack & Key Concepts
+* **Languages:** C++
+* **Libraries/Tools:** Standard C++, Windows API
+* **Key Logic/Algorithms:** Raycasting, 3D to 2D Projection, Collision Detection.
 
-**Short description:** 
-- This is a guided project by One Lone Coder focused on building a basic gaming engine using C++.
-- The engine uses raycasting to simulate a 3-d environment in 2-d space.
+## Roadmap & Features
+- [x] **Phase 1: Raycasting Engine** - Core 3D projection (Done).
 
-**Objectives:**
-- Build a functional FPS-environment entirely using ASCII characters on a 2-d console buffer.
-- Learn about intermediate C++ concepts while implementing practical uses of the language.
+## Lessons Learned + Notes
+* **Technical:** Understanding how intermediate C++ concepts apply to real-time rendering.
+* **Process:** Learned the value of guided implementation for complex mathematical concepts.
+
+## How to Run
+```bash
+WIP
+```
+
+## References & Credits
+- Tutorial by One Lone Coder (https://www.youtube.com/watch?v=xW8skO7MFYw)

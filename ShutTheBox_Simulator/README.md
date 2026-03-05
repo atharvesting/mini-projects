@@ -1,25 +1,27 @@
 # Shut The Box Simulator + Bot
+> A customizable simulator and strategy analyzer for the game "Shut The Box".
 
 ![4-player Shut The Box](/1_Assets/stb.jpg)
 
-**Started:** 2025-12-25
+## Overview
+* **Status:** MVP
+* **Started:** 2025-12-25
+* **Core Stack:** Python
+* **Domain:** Game Dev / Probability
 
-**MVP:** 2025-12-26
+## Objectives
+To build a scalable STB simulation to determine best playing strategies through statistical analysis and functional programming.
 
-**Language(s) used:** Python
+## Tech Stack & Key Concepts
+* **Languages:** Python
+* **Libraries/Tools:** Random, ABC
+* **Key Logic/Algorithms:** Object-Oriented Programming (Abstract classes for strategies), Functional programming, Probability analysis.
 
-**Short description:** 
-- This project focuses on simulating a variation of the Shut The Box game. 
-- The parameters of the game such as dice count, player count, etc. are customizable.
-- The players can be assigned strategies to dictate playing decisions.
+## Roadmap & Features
+- [x] **Phase 1: Core Engine** - Simulation of game rules (Done).
+- [x] **Phase 2: MVP Bot** - Basic strategy implementation (Done).
+- [ ] **Phase 3: Advanced Analysis** - Strategy optimization via large-scale simulation.
 
-**Objectives:**
-- Build a fully customizable and scalable STB game simulation.
-- Observe playing patterns to design playing strategies.
-- Independently determining best playing strategies using simulation and probability analyses.
-- Practice advanced programming practices in Python such as OOP (abstract classes),
-and functional programming.
-
-For more information about the game itself, check out its [Wikipedia page](https://en.wikipedia.org/wiki/Shut_the_box)
-or the rules [here](https://www.mastersofgames.com/rules/shut-box-rules.htm?srsltid=AfmBOor40vqtN5KIIB00iLcoEL9NB8ChV3ND_Jifr5lWzn6ZhB6gvIaj).
-
+## Lessons Learned + Notes
+* **Technical:** Practical application of OOP (Abstract Base Classes) in Python.
+* **Process:** Identifying that simulation often yields faster strategy results than pure analytical probability in complex variations.

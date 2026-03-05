@@ -1,22 +1,25 @@
 # Stem and Leaf Plot Generator
+> A simple C++ tool to generate statistical Stem and Leaf plots.
 
-Simple C++ program to generate a Stem and Leaf plot from given numerical data.
+## Overview
+* **Status:** MVP
+* **Started:** 2026-02-07
+* **Core Stack:** C++
+* **Domain:** Data Visualization / Statistics
+
+## Objectives
+To quickly generate formatted Stem and Leaf plots from numerical datasets for statistical analysis.
 
 ## Tech Stack & Key Concepts
-- Language/Framework: C++
-- Key Logic: Loops and Data Structures
-- External APIs: None
+* **Languages:** C++
+* **Libraries/Tools:** STL (Maps)
+* **Key Logic/Algorithms:** Sorted Data Structures, Loop-based rendering.
 
-## Features
-- [x] Core stem leaf data generation (MVP)
-- [ ] Data Import functionality (CSV, HDF5)
-- [ ] Performance upgrade
-- [x] Sorted DS + Output (Sorted Stems, Sorted Leaf)
+## Roadmap & Features
+- [x] **Phase 1: MVP** - Core plot generation (Done).
+- [ ] **Phase 2: Import** - Support for CSV/HDF5 files.
+- [ ] **Phase 3: Analysis** - Basic statistics and outlier detection.
 
-### Optional:
-- [ ] Basic Statistics
-- [ ] Outlier detection and exclusion
-
-## Lessons Learned
-- Planned the implementation in advance which led to a drastically shorter development time in comparison to past projects.
-- Learnt about maps in C++
+## Lessons Learned + Notes
+* **Technical:** Learned about `std::map` performance in C++ for grouping data by stems.
+* **Process:** Advance planning led to a drastically shorter development time.
