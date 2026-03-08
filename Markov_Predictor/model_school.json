@@ -1,0 +1,1239 @@
+{
+    "a": {
+        "bath": 1,
+        "glass": 1,
+        "goal": 1,
+        "house": 1,
+        "sun": 1,
+        "table": 1
+    },
+    "about": {
+        "adventures": 1,
+        "dates": 1,
+        "homework": 1,
+        "kings": 1,
+        "plants": 1,
+        "school": 2,
+        "the": 1
+    },
+    "across": {
+        "the": 1
+    },
+    "adventures": {
+        "and": 1
+    },
+    "after": {
+        "dinner": 1,
+        "fifteen": 1,
+        "lunch": 1,
+        "math": 1,
+        "week": 1
+    },
+    "afternoon": {
+        "classes": 1
+    },
+    "again": {
+        "and": 1,
+        "science": 1,
+        "tim": 1
+    },
+    "alarm": {
+        "clock": 1,
+        "will": 1
+    },
+    "and": {
+        "a": 1,
+        "animals": 1,
+        "art": 1,
+        "checks": 1,
+        "chicken": 1,
+        "classes": 1,
+        "closes": 1,
+        "comes": 1,
+        "diagrams": 1,
+        "does": 1,
+        "drinks": 1,
+        "english": 1,
+        "everyone": 2,
+        "flowers": 1,
+        "forth": 1,
+        "fun": 1,
+        "go": 1,
+        "gray": 1,
+        "helps": 1,
+        "homework": 1,
+        "leads": 1,
+        "listens": 1,
+        "looks": 1,
+        "make": 1,
+        "names": 1,
+        "old": 1,
+        "pencils": 1,
+        "people": 1,
+        "practices": 1,
+        "puts": 1,
+        "rubs": 1,
+        "salad": 1,
+        "shapes": 1,
+        "shows": 1,
+        "stars": 1,
+        "takes": 1,
+        "talks": 1,
+        "the": 1,
+        "they": 1,
+        "trade": 1,
+        "tries": 1,
+        "washes": 1,
+        "watches": 2,
+        "waves": 1,
+        "write": 1,
+        "yellow": 1
+    },
+    "animals": {
+        "best": 1
+    },
+    "around": {
+        "the": 1
+    },
+    "art": {
+        "and": 1,
+        "class": 1,
+        "every": 1
+    },
+    "ask": {
+        "questions": 1
+    },
+    "asks": {
+        "about": 1
+    },
+    "at": {
+        "a": 1,
+        "his": 1,
+        "home": 1,
+        "nine": 1,
+        "noon": 1,
+        "recess": 2,
+        "school": 2,
+        "seven": 1,
+        "six": 1,
+        "three": 1
+    },
+    "attendance": {
+        "and": 1
+    },
+    "back": {
+        "and": 1,
+        "the": 1,
+        "to": 1
+    },
+    "bag": {
+        "and": 1,
+        "on": 1
+    },
+    "ball": {
+        "back": 1
+    },
+    "bars": {
+        "or": 1
+    },
+    "bath": {
+        "and": 1
+    },
+    "bathroom": {
+        "and": 1
+    },
+    "because": {
+        "he": 1
+    },
+    "bed": {
+        "and": 1
+    },
+    "bedtime": {
+        "comes": 1
+    },
+    "before": {
+        "climbing": 1,
+        "the": 1
+    },
+    "begins": {
+        "the": 1
+    },
+    "bell": {
+        "rings": 2
+    },
+    "best": {
+        "drawings": 1,
+        "he": 1
+    },
+    "big": {
+        "slide": 1
+    },
+    "blows": {
+        "after": 1
+    },
+    "blue": {
+        "and": 1,
+        "shirt": 1
+    },
+    "board": {
+        "after": 1,
+        "the": 1
+    },
+    "book": {
+        "and": 1
+    },
+    "books": {
+        "open": 1,
+        "pens": 1
+    },
+    "box": {
+        "he": 1
+    },
+    "breakfast": {
+        "ready": 1,
+        "rides": 1
+    },
+    "bright": {
+        "he": 1
+    },
+    "brushes": {
+        "his": 1
+    },
+    "bus": {
+        "comes": 1,
+        "in": 1,
+        "learns": 1,
+        "ride": 1
+    },
+    "busy": {
+        "streets": 1
+    },
+    "butter": {
+        "and": 1
+    },
+    "by": {
+        "the": 1
+    },
+    "cafeteria": {
+        "with": 1
+    },
+    "cars": {
+        "shops": 1
+    },
+    "change": {
+        "the": 1
+    },
+    "changes": {
+        "out": 1
+    },
+    "checks": {
+        "for": 1,
+        "his": 1
+    },
+    "cheers": {
+        "loud": 1
+    },
+    "chicken": {
+        "that": 1
+    },
+    "cities": {
+        "tim": 1
+    },
+    "class": {
+        "afternoon": 1,
+        "every": 1,
+        "is": 2,
+        "to": 1,
+        "where": 1
+    },
+    "classes": {
+        "each": 1,
+        "include": 1
+    },
+    "climbing": {
+        "on": 1
+    },
+    "clock": {
+        "rings": 1
+    },
+    "clockwork": {
+        "tim": 1
+    },
+    "closes": {
+        "his": 1
+    },
+    "cold": {
+        "water": 1
+    },
+    "colors": {
+        "in": 1,
+        "on": 1
+    },
+    "comes": {
+        "at": 3,
+        "english": 1,
+        "home": 1
+    },
+    "comics": {
+        "for": 1
+    },
+    "copies": {
+        "new": 1
+    },
+    "crafts": {
+        "tim": 1
+    },
+    "dad": {
+        "asks": 1
+    },
+    "dal": {
+        "roti": 1
+    },
+    "dates": {
+        "and": 1
+    },
+    "day": {
+        "at": 2,
+        "follows": 1,
+        "of": 1,
+        "starts": 1,
+        "tim": 2
+    },
+    "desk": {
+        "with": 1
+    },
+    "diagrams": {
+        "tim": 1
+    },
+    "dinner": {
+        "is": 1,
+        "tim": 1
+    },
+    "does": {
+        "homework": 1
+    },
+    "doesnt": {
+        "understand": 1
+    },
+    "door": {
+        "and": 1
+    },
+    "down": {
+        "the": 1
+    },
+    "downstairs": {
+        "in": 1
+    },
+    "drawings": {
+        "on": 1
+    },
+    "draws": {
+        "a": 1,
+        "pictures": 1
+    },
+    "drinks": {
+        "a": 1
+    },
+    "each": {
+        "day": 1,
+        "time": 1
+    },
+    "early": {
+        "when": 1
+    },
+    "eat": {
+        "after": 1
+    },
+    "eats": {
+        "breakfast": 1,
+        "dal": 1,
+        "lunch": 1,
+        "rice": 1,
+        "toast": 1
+    },
+    "ends": {
+        "at": 1
+    },
+    "english": {
+        "class": 1,
+        "plays": 1
+    },
+    "every": {
+        "day": 2,
+        "morning": 1,
+        "school": 2,
+        "week": 1
+    },
+    "everyone": {
+        "cheers": 1,
+        "hurries": 1,
+        "lines": 1,
+        "to": 1
+    },
+    "examples": {
+        "on": 1
+    },
+    "experiments": {
+        "and": 1
+    },
+    "explain": {
+        "numbers": 1
+    },
+    "eyes": {
+        "he": 1,
+        "the": 1
+    },
+    "face": {
+        "with": 1
+    },
+    "family": {
+        "around": 1
+    },
+    "fast": {
+        "at": 1
+    },
+    "feels": {
+        "shorter": 1
+    },
+    "field": {
+        "with": 1
+    },
+    "fifteen": {
+        "minutes": 1
+    },
+    "finishes": {
+        "with": 1
+    },
+    "first": {
+        "he": 1,
+        "period": 1
+    },
+    "flowers": {
+        "in": 1
+    },
+    "follows": {
+        "this": 1
+    },
+    "football": {
+        "they": 1
+    },
+    "for": {
+        "books": 1,
+        "everyone": 1,
+        "one": 1,
+        "the": 1,
+        "tim": 1
+    },
+    "forth": {
+        "across": 1
+    },
+    "forward": {
+        "to": 1
+    },
+    "friends": {
+        "about": 1,
+        "and": 2,
+        "share": 1,
+        "to": 1
+    },
+    "fun": {
+        "where": 1
+    },
+    "games": {
+        "or": 1,
+        "the": 1
+    },
+    "gets": {
+        "out": 1
+    },
+    "glass": {
+        "of": 1
+    },
+    "go": {
+        "out": 1,
+        "to": 1
+    },
+    "goal": {
+        "and": 1
+    },
+    "grabs": {
+        "his": 1
+    },
+    "grass": {
+        "tim": 1
+    },
+    "gray": {
+        "pants": 1
+    },
+    "hand": {
+        "to": 1
+    },
+    "hands": {
+        "and": 1
+    },
+    "hangs": {
+        "the": 1
+    },
+    "hard": {
+        "questions": 1
+    },
+    "has": {
+        "breakfast": 1
+    },
+    "he": {
+        "brushes": 1,
+        "copies": 1,
+        "doesnt": 1,
+        "eats": 1,
+        "finishes": 1,
+        "grabs": 1,
+        "sits": 1,
+        "talks": 1,
+        "uses": 1,
+        "wakes": 1,
+        "writes": 1
+    },
+    "helps": {
+        "and": 1,
+        "with": 1
+    },
+    "his": {
+        "back": 1,
+        "bag": 1,
+        "desk": 1,
+        "eyes": 2,
+        "face": 1,
+        "friends": 3,
+        "hand": 1,
+        "lunch": 1,
+        "notebook": 1,
+        "room": 1,
+        "school": 2,
+        "science": 1,
+        "teeth": 1,
+        "vocabulary": 1,
+        "work": 1
+    },
+    "history": {
+        "and": 1,
+        "the": 1
+    },
+    "home": {
+        "feels": 1,
+        "tim": 1,
+        "tired": 1
+    },
+    "homework": {
+        "first": 1,
+        "inside": 1,
+        "or": 1
+    },
+    "hour": {
+        "he": 1
+    },
+    "house": {
+        "tim": 1,
+        "with": 1
+    },
+    "hurries": {
+        "back": 1
+    },
+    "in": {
+        "art": 1,
+        "his": 3,
+        "history": 1,
+        "line": 1,
+        "test": 1,
+        "the": 6
+    },
+    "include": {
+        "history": 1
+    },
+    "inside": {
+        "the": 1
+    },
+    "is": {
+        "at": 1,
+        "fun": 1,
+        "math": 1,
+        "next": 1
+    },
+    "jokes": {
+        "and": 1
+    },
+    "just": {
+        "like": 1
+    },
+    "kick": {
+        "the": 1
+    },
+    "kings": {
+        "wars": 1
+    },
+    "kitchen": {
+        "mom": 1
+    },
+    "leads": {
+        "the": 1
+    },
+    "learns": {
+        "math": 1
+    },
+    "leaves": {
+        "and": 1
+    },
+    "lights": {
+        "go": 1
+    },
+    "like": {
+        "clockwork": 1
+    },
+    "likes": {
+        "stories": 1,
+        "the": 1
+    },
+    "line": {
+        "up": 1,
+        "with": 1
+    },
+    "lines": {
+        "up": 1
+    },
+    "listens": {
+        "and": 1,
+        "to": 1
+    },
+    "looks": {
+        "forward": 1
+    },
+    "loud": {
+        "in": 1,
+        "the": 1
+    },
+    "lunch": {
+        "box": 1,
+        "paints": 1,
+        "they": 1,
+        "time": 1
+    },
+    "make": {
+        "crafts": 1
+    },
+    "math": {
+        "and": 1,
+        "class": 1,
+        "comes": 1
+    },
+    "milk": {
+        "he": 1
+    },
+    "minutes": {
+        "and": 1,
+        "through": 1
+    },
+    "mixes": {
+        "colors": 1
+    },
+    "mom": {
+        "before": 1,
+        "checks": 1,
+        "has": 1,
+        "packed": 1
+    },
+    "morning": {
+        "tim": 1
+    },
+    "names": {
+        "art": 1
+    },
+    "neat": {
+        "his": 1
+    },
+    "new": {
+        "words": 1
+    },
+    "next": {
+        "with": 1
+    },
+    "nine": {
+        "when": 1
+    },
+    "noon": {
+        "every": 1
+    },
+    "notebook": {
+        "and": 1,
+        "lunch": 1
+    },
+    "notes": {
+        "about": 1
+    },
+    "numbers": {
+        "and": 1
+    },
+    "oclock": {
+        "sharp": 1
+    },
+    "of": {
+        "bed": 1,
+        "leaves": 1,
+        "milk": 1,
+        "the": 1,
+        "uniform": 1
+    },
+    "old": {
+        "cities": 1
+    },
+    "on": {
+        "board": 1,
+        "his": 2,
+        "pajamas": 1,
+        "the": 6
+    },
+    "one": {
+        "hour": 1
+    },
+    "open": {
+        "and": 1
+    },
+    "opens": {
+        "his": 1
+    },
+    "or": {
+        "games": 1,
+        "reads": 1,
+        "slides": 1
+    },
+    "out": {
+        "in": 1,
+        "of": 2,
+        "the": 1
+    },
+    "packed": {
+        "neat": 1
+    },
+    "page": {
+        "and": 1
+    },
+    "paint": {
+        "pictures": 1
+    },
+    "paints": {
+        "in": 1
+    },
+    "pajamas": {
+        "soft": 1
+    },
+    "pants": {
+        "downstairs": 1
+    },
+    "paper": {
+        "the": 1
+    },
+    "pencils": {
+        "sharp": 1
+    },
+    "pens": {
+        "and": 1
+    },
+    "people": {
+        "walking": 1
+    },
+    "period": {
+        "is": 1
+    },
+    "pictures": {
+        "and": 1,
+        "of": 1
+    },
+    "plants": {
+        "water": 1
+    },
+    "play": {
+        "football": 1
+    },
+    "playground": {
+        "again": 1,
+        "before": 1
+    },
+    "plays": {
+        "at": 1,
+        "video": 1
+    },
+    "practices": {
+        "spelling": 1
+    },
+    "problems": {
+        "on": 1
+    },
+    "puts": {
+        "on": 2
+    },
+    "questions": {
+        "dinner": 1,
+        "when": 1
+    },
+    "quick": {
+        "sometimes": 1
+    },
+    "raises": {
+        "his": 1
+    },
+    "read": {
+        "stories": 1
+    },
+    "reads": {
+        "comics": 1
+    },
+    "ready": {
+        "on": 1
+    },
+    "recess": {
+        "eats": 1,
+        "tim": 1
+    },
+    "red": {
+        "blue": 1
+    },
+    "rhythm": {
+        "and": 1
+    },
+    "rice": {
+        "vegetables": 1
+    },
+    "ride": {
+        "home": 1,
+        "takes": 1
+    },
+    "rides": {
+        "the": 1
+    },
+    "right": {
+        "at": 1
+    },
+    "ring": {
+        "again": 1
+    },
+    "rings": {
+        "and": 1,
+        "loud": 1,
+        "tim": 1
+    },
+    "room": {
+        "first": 1,
+        "tim": 1
+    },
+    "roti": {
+        "and": 1
+    },
+    "routine": {
+        "just": 1
+    },
+    "rubs": {
+        "his": 1
+    },
+    "runs": {
+        "out": 1,
+        "to": 1
+    },
+    "salad": {
+        "while": 1
+    },
+    "same": {
+        "tim": 1,
+        "way": 1
+    },
+    "schedule": {
+        "stays": 1
+    },
+    "school": {
+        "after": 1,
+        "bag": 1,
+        "begins": 1,
+        "bus": 1,
+        "day": 2,
+        "ends": 1,
+        "everyone": 1,
+        "tomorrow": 1,
+        "uniform": 1
+    },
+    "science": {
+        "class": 1,
+        "notebook": 1
+    },
+    "scores": {
+        "a": 1
+    },
+    "see": {
+        "school": 1
+    },
+    "sentences": {
+        "tim": 1
+    },
+    "seven": {
+        "thirty": 1
+    },
+    "shapes": {
+        "he": 1
+    },
+    "share": {
+        "jokes": 1
+    },
+    "sharp": {
+        "each": 1,
+        "every": 1,
+        "mom": 1
+    },
+    "shining": {
+        "bright": 1
+    },
+    "shirt": {
+        "and": 1
+    },
+    "shops": {
+        "and": 1
+    },
+    "shorter": {
+        "because": 1
+    },
+    "shows": {
+        "examples": 1
+    },
+    "sits": {
+        "at": 2,
+        "by": 1
+    },
+    "six": {
+        "with": 1
+    },
+    "sky": {
+        "tim": 1
+    },
+    "slide": {
+        "the": 1
+    },
+    "slides": {
+        "down": 1
+    },
+    "snacks": {
+        "while": 1
+    },
+    "soft": {
+        "bedtime": 1
+    },
+    "solve": {
+        "them": 1
+    },
+    "sometimes": {
+        "tim": 1
+    },
+    "spelling": {
+        "them": 1
+    },
+    "stands": {
+        "with": 1
+    },
+    "stars": {
+        "in": 1
+    },
+    "starts": {
+        "the": 1
+    },
+    "stays": {
+        "steady": 1
+    },
+    "steady": {
+        "and": 1
+    },
+    "stories": {
+        "about": 2,
+        "and": 1
+    },
+    "streets": {
+        "tim": 1
+    },
+    "sun": {
+        "shining": 1
+    },
+    "swings": {
+        "on": 1
+    },
+    "table": {
+        "in": 1,
+        "tim": 2
+    },
+    "takes": {
+        "attendance": 1,
+        "notes": 1,
+        "twenty": 1
+    },
+    "talks": {
+        "about": 2,
+        "with": 1
+    },
+    "teacher": {
+        "explain": 1,
+        "hangs": 1,
+        "helps": 1,
+        "takes": 1,
+        "talks": 1,
+        "tells": 1
+    },
+    "teeth": {
+        "in": 1
+    },
+    "tells": {
+        "stories": 1
+    },
+    "test": {
+        "tubes": 1
+    },
+    "that": {
+        "mom": 1
+    },
+    "the": {
+        "alarm": 2,
+        "ball": 1,
+        "bars": 1,
+        "bathroom": 1,
+        "bell": 2,
+        "best": 1,
+        "big": 1,
+        "blue": 1,
+        "board": 1,
+        "bus": 3,
+        "cafeteria": 1,
+        "class": 1,
+        "day": 2,
+        "door": 1,
+        "family": 1,
+        "field": 1,
+        "grass": 1,
+        "house": 1,
+        "kitchen": 1,
+        "page": 1,
+        "paper": 1,
+        "playground": 2,
+        "rhythm": 1,
+        "ride": 1,
+        "same": 2,
+        "schedule": 1,
+        "school": 1,
+        "sky": 1,
+        "table": 2,
+        "teacher": 6,
+        "wall": 1,
+        "week": 1,
+        "whistle": 1,
+        "window": 1
+    },
+    "their": {
+        "room": 1
+    },
+    "them": {
+        "change": 1,
+        "quick": 1,
+        "right": 1
+    },
+    "then": {
+        "tim": 1
+    },
+    "they": {
+        "eat": 1,
+        "kick": 1,
+        "line": 1,
+        "paint": 1,
+        "read": 1,
+        "wash": 1
+    },
+    "thinks": {
+        "about": 1
+    },
+    "thirty": {
+        "sharp": 1
+    },
+    "this": {
+        "routine": 1
+    },
+    "three": {
+        "oclock": 1
+    },
+    "through": {
+        "busy": 1
+    },
+    "tim": {
+        "changes": 1,
+        "draws": 2,
+        "eats": 2,
+        "gets": 1,
+        "he": 1,
+        "likes": 2,
+        "listens": 1,
+        "mixes": 1,
+        "opens": 1,
+        "plays": 1,
+        "puts": 1,
+        "raises": 1,
+        "runs": 2,
+        "scores": 1,
+        "sits": 2,
+        "stands": 1,
+        "swings": 1,
+        "thinks": 1,
+        "waits": 1,
+        "wakes": 1
+    },
+    "time": {
+        "comes": 1,
+        "week": 1
+    },
+    "tired": {
+        "every": 1
+    },
+    "to": {
+        "ask": 1,
+        "class": 1,
+        "friends": 1,
+        "mom": 1,
+        "play": 1,
+        "see": 1,
+        "solve": 1,
+        "the": 3,
+        "their": 1
+    },
+    "toast": {
+        "with": 1
+    },
+    "tomorrow": {
+        "and": 1
+    },
+    "trade": {
+        "snacks": 1
+    },
+    "trees": {
+        "and": 1
+    },
+    "tries": {
+        "to": 1
+    },
+    "tubes": {
+        "and": 1
+    },
+    "twenty": {
+        "minutes": 1
+    },
+    "understand": {
+        "the": 1
+    },
+    "uniform": {
+        "and": 1,
+        "the": 1
+    },
+    "up": {
+        "again": 1,
+        "early": 1,
+        "eats": 1,
+        "in": 1
+    },
+    "uses": {
+        "red": 1
+    },
+    "vegetables": {
+        "and": 1
+    },
+    "video": {
+        "games": 1
+    },
+    "vocabulary": {
+        "book": 1
+    },
+    "waits": {
+        "for": 1
+    },
+    "wakes": {
+        "up": 2
+    },
+    "walking": {
+        "fast": 1
+    },
+    "wall": {
+        "for": 1
+    },
+    "wars": {
+        "and": 1
+    },
+    "wash": {
+        "hands": 1
+    },
+    "washes": {
+        "his": 1
+    },
+    "watches": {
+        "cars": 1,
+        "them": 1
+    },
+    "water": {
+        "and": 1,
+        "then": 1
+    },
+    "waves": {
+        "to": 1
+    },
+    "way": {
+        "for": 1
+    },
+    "week": {
+        "after": 1,
+        "in": 1,
+        "the": 1,
+        "tim": 1
+    },
+    "when": {
+        "he": 1,
+        "lights": 1,
+        "the": 1
+    },
+    "where": {
+        "they": 2
+    },
+    "while": {
+        "dad": 1,
+        "they": 1
+    },
+    "whistle": {
+        "blows": 1
+    },
+    "will": {
+        "ring": 1
+    },
+    "window": {
+        "and": 1
+    },
+    "with": {
+        "a": 1,
+        "books": 1,
+        "butter": 1,
+        "cold": 1,
+        "experiments": 1,
+        "friends": 1,
+        "hard": 1,
+        "his": 4,
+        "the": 1,
+        "trees": 1
+    },
+    "words": {
+        "in": 1
+    },
+    "work": {
+        "and": 1
+    },
+    "write": {
+        "sentences": 1
+    },
+    "writes": {
+        "problems": 1
+    },
+    "yellow": {
+        "colors": 1
+    }
+}

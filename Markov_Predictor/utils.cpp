@@ -4,6 +4,9 @@
 #include <fstream>
 #include <algorithm>
 #include <map>
+#include "nlohmann/json.hpp"
+#include "models.h"
+using json = nlohmann::json;
 using namespace std;
 
 double randomNumGenerator(void) 
@@ -26,6 +29,13 @@ string readFile(string file_name)
     return ss.str();
 }
 
+void writeFile(string file_name, string content)
+{
+    ofstream file(file_name);
+    file << content;
+    file.close();
+}
+
 void preprocessString(string& s)
 {
     // Removing Punctuation, Lowercase
@@ -40,4 +50,16 @@ int nextWordsfSum(map<string, int>& a)
         total += n.second;
     }
     return total;
+}
+
+void export2JSON(const string& file_name, const map<string, map<string, int>>& fMap) {
+    json j(fMap);
+    writeFile(file_name, j.dump(4));
+}
+
+map<string, map<string, int>> JSON2Map(string file_name) {
+    string s = readFile(file_name);
+    json j = json::parse(s);
+
+    return j.get<map<string, map<string, int>>>();
 }

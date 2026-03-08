@@ -17,8 +17,14 @@ To build a trigram (currently bigram) text prediction system that analyzes word 
 
 ## Roadmap & Features
 - [x] **Phase 1: Bigram Model** - Core prediction logic.
-- [/] **Phase 2: Trigram Support** - Higher context prediction.
+- [ ] **Phase 2: Trigram Support** - Higher context prediction.
 - [ ] **Phase 3: CLI UI** - Improved user interface for inputting seeds.
+
+## Example Outputs:
+
+> the school begins the teacher takes attendance and closes his school after math comes at nine
+
+> the playground again science notebook and a house tim mixes colors on the ball back and
 
 ## Lessons Learned + Notes
 * **Technical:** Implementing Inverse Transform Sampling in C++ for weighted probability selection.
@@ -32,3 +38,9 @@ To build a trigram (currently bigram) text prediction system that analyzes word 
 
 
 For more on Markov chains, see the [Wikipedia article](https://en.wikipedia.org/wiki/Markov_chain).
+
+
+TODO:
+- Export model as JSON
+- Working Trigram model
+- Live text prediction and model updation
