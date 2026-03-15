@@ -14,18 +14,13 @@ using MapResult = variant<
 class Model
 {
 protected:
-	unsigned int n;  // as in n-gram model
 	string file_contents;
 	vector<string> word_list;
-	MapResult model_data;
 
 public:
+	MapResult model_data;
 	// Constructor
-	Model(unsigned int n, string file_name) {
-		if (n != 2 && n != 3) {
-			throw runtime_error("Only bigram (2) and trigram (3) models are supported!\n");
-		}
-		this->n = n;
+	Model(string file_name) {
 		this->file_contents = readFile(file_name);
 		this->word_list = string2Array(this->file_contents);
 	}
@@ -61,7 +56,7 @@ class Bigram : public Model
 {
 public:
 
-	Bigram(unsigned int n, string file_name) : Model(n, file_name) {
+	Bigram(string file_name) : Model(file_name) {
 		buildModel();
 	}
 
@@ -105,5 +100,25 @@ public:
 			}
 		}
 		cout << "\n\nPrediction terminated!" << endl;
+	}
+};
+
+class Trigram : public Model {
+public:
+	Trigram(string file_name) : Model(file_name) {
+		buildModel();
+	}
+
+	MapResult array2Map(const vector<string>& v) override {
+		map<vector<string>, map<string, int>> fMap;
+		for (size_t i = 0; i < v.size() - 2; i++) {
+			vector<string> temp = { v[i], v[i + 1] };
+			fMap[temp][v[i + 2]]++;
+		}
+		return fMap;
+	}
+
+	void predict(string start, unsigned int word_count) override {
+		cout << "Here is the prediction" << endl;
 	}
 };

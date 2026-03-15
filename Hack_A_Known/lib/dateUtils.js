@@ -52,7 +52,8 @@ export function computeTimelineRange(hackathons) {
 
 export function toPercent(date, minDate, totalDays) {
   const diff = differenceInCalendarDays(date, minDate);
-  return (diff / totalDays) * 100;
+  const span = Math.max(1, totalDays - 1);
+  return (diff / span) * 100;
 }
 
 export function getMonthTicks(minDate, maxDate) {

@@ -7,7 +7,7 @@ export default function Footer({ recordsCount, lastSync, repoUrl }) {
   return (
     <footer className="mt-8 border-t border-zinc-200 pt-4 dark:border-zinc-800">
       <div className="flex items-center justify-between gap-3">
-        <p className={theme.subtext}>© {year} Hack-A-Know</p>
+        <p className={theme.subtext}>© {year} Hack-A-Known</p>
 
         <a
           href={repoUrl}

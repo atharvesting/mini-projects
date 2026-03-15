@@ -2,8 +2,8 @@
 > A terminal-based algorithm visualizer to understand sorting logic in real-time.
 
 ## Overview
-* **Status:** MVP
-* **Started:** [2026-02-14]
+* **Status:** ✅
+* **Started:** 2026-02-14
 * **Core Stack:** C++, Windows API
 * **Domain:** Systems / DSA
 
@@ -17,7 +17,7 @@ To build a functional algorithm visualizer entirely using ASCII characters on a 
 
 ## Roadmap & Features
 - [x] **Phase 1: Basic Rendering** - Bar-based visualization in console.
-- [/] **Phase 2: Algorithm Implementation** - Bubble and Selection sort steps (WIP).
+- [x] **Phase 2: Algorithm Implementation** - Bubble and Selection sort steps.
 - [x] **Phase 3: Playback Controls** - Navigation through sorting steps.
 
 ## Lessons Learned + Notes
@@ -25,7 +25,4 @@ To build a functional algorithm visualizer entirely using ASCII characters on a 
 * **Process:** Using a doubly linked list to store array states for back-and-forth visualization.
 
 ## How to Run
-```bash
-# Compile and run (Windows)
-g++ Consalgo_Visualizer.cpp -o visualizer && ./visualizer
-```
+- Change console size to 70 (columns) x 35 (rows).

@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <string>
 #include <cstdlib>
+#include <functional>
 using namespace std;
 constexpr auto S = 10;
 
@@ -61,12 +62,12 @@ struct Step* createStep(vector<int> arr, int current_idx) {
     return t;
 }
 
-struct Step* createStepList(void) {
+struct Step* createStepList(function<struct Output()> sorter) {
     struct Output sorted { false, 0 };
     START = createStep(arr, 0);
     struct Step* q = START;
     while (!sorted.sorted) {
-        sorted = selection_sort_1_step();
+        sorted = sorter();
         q->next = createStep(arr, sorted.current_idx); nStepListLen++;
         START->prev = q->next;
         q->next->next = START;
@@ -104,7 +105,7 @@ int main()
     SetConsoleActiveScreenBuffer(hConsole);
     DWORD dwBytesWritten = 0;
 
-    START = createStepList();
+    START = createStepList(bubble_sort_1_step);
     p = START;
 
     while (1)
