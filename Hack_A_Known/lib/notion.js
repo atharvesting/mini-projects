@@ -73,6 +73,7 @@ function normalizeHackathon(page) {
     name: properties.Name?.title?.[0]?.plain_text ?? titleProperty?.title?.[0]?.plain_text ?? 'Untitled',
     startDate,
     endDate,
+    venue: getPropertyText(properties.Venue ?? properties.venue) ?? '',
     tags: properties.Tags?.multi_select?.map((t) => t.name) ?? [],
     url: properties.URL?.url ?? null,
     description: properties.Description?.rich_text?.[0]?.plain_text ?? '',
@@ -101,8 +102,15 @@ export const getHackathonsData = unstable_cache(
         cursor = response.has_more ? response.next_cursor : undefined;
       } while (cursor);
 
+      const approvedItems = allResults.filter((page) => {
+        const isPending =
+          page.properties?.Pending?.checkbox === true ||
+          page.properties?.pending?.checkbox === true;
+        return !isPending;
+      });
+
       return {
-        items: allResults.map(normalizeHackathon),
+        items: approvedItems.map(normalizeHackathon),
         fetchedAt: new Date().toISOString(),
       };
     } catch (error) {

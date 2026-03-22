@@ -11,6 +11,7 @@ import {
 } from '@/lib/dateUtils';
 import { theme } from '@/lib/theme';
 import ViewControls from '@/components/ViewControls';
+import SuggestionModal from '@/components/SuggestionModal';
 
 export default function HackathonGantt({ hackathons, onSelect }) {
   const [sortMode, setSortMode] = useState('start-asc');
@@ -72,22 +73,6 @@ export default function HackathonGantt({ hackathons, onSelect }) {
 
   const timeline = computeTimelineRange(items);
 
-  if (!timeline) {
-    return (
-      <div className={`${theme.card} p-4 md:p-6`}>
-        <p className={`mt-2 ${theme.subtext}`}>
-          Add valid start and end dates in Notion to render the timeline.
-        </p>
-      </div>
-    );
-  }
-
-  const { minDate, maxDate, totalDays } = timeline;
-  const monthTicks = getMonthTicks(minDate, maxDate);
-  const today = new Date();
-  const todayPercent = toPercent(today, minDate, totalDays);
-  const showTodayLine = todayPercent >= 0 && todayPercent <= 100;
-
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -142,6 +127,18 @@ export default function HackathonGantt({ hackathons, onSelect }) {
     }
   }, [zoom]);
 
+  if (!timeline) {
+    return (
+      <div className={`${theme.card} p-4 md:p-6`}>
+        <p className={`mt-2 ${theme.subtext}`}>
+          Add valid start and end dates in Notion to render the timeline.
+        </p>
+      </div>
+    );
+  }
+
+  const { minDate, maxDate, totalDays } = timeline;
+
   const resetToToday = () => {
     setZoom(1);
     requestAnimationFrame(() => {
@@ -155,13 +152,14 @@ export default function HackathonGantt({ hackathons, onSelect }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-3">
-        <button
-          onClick={resetToToday}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900"
-        >
-          Go to Today
-        </button>
-        <div className="w-full sm:w-auto">
+        <SuggestionModal />
+        <div className="w-full sm:w-auto flex items-center gap-2">
+          <button
+            onClick={resetToToday}
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded border border-zinc-200 bg-white px-3 py-1.5 text-sm font-medium hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900"
+          >
+            Go to Today
+          </button>
           <ViewControls
             filterValue={filter}
             onFilterChange={setFilter}
@@ -261,6 +259,7 @@ export default function HackathonGantt({ hackathons, onSelect }) {
                             status,
                             start: hoverStart,
                             end: hoverEnd,
+                            venue: hackathon.venue,
                           })
                         }
                         onMouseMove={(event) =>
@@ -296,6 +295,7 @@ export default function HackathonGantt({ hackathons, onSelect }) {
         >
           <p className="font-semibold">{hoverInfo.name}</p>
           <p className={theme.subtext}>Status: {hoverInfo.status}</p>
+          {hoverInfo.venue && <p className={`mt-1 truncate max-w-[200px] ${theme.subtext}`}>Venue: {hoverInfo.venue}</p>}
           <p>{hoverInfo.start} → {hoverInfo.end}</p>
         </div>
       ) : null}

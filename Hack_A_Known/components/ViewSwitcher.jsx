@@ -20,10 +20,12 @@ export default function ViewSwitcher({ hackathons }) {
     <>
       <RefreshShortcut />
       <Tabs defaultValue="table" className="w-full">
-        <TabsList className="mb-4 mx-auto">
-          <TabsTrigger value="table">Table View</TabsTrigger>
-          <TabsTrigger value="gantt">Timeline View</TabsTrigger>
-        </TabsList>
+        <div className="mb-4 flex flex-col items-center">
+          <TabsList className="mx-auto">
+            <TabsTrigger value="table">Table View</TabsTrigger>
+            <TabsTrigger value="gantt">Timeline View</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="table">
           <HackathonTable hackathons={hackathons} onSelect={handleSelect} />

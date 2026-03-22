@@ -15,6 +15,7 @@ import {
 import { getStatus } from '@/lib/dateUtils';
 import { theme } from '@/lib/theme';
 import ViewControls from '@/components/ViewControls';
+import SuggestionModal from '@/components/SuggestionModal';
 
 function formatDate(value) {
   if (!value) return 'TBD';
@@ -108,15 +109,20 @@ export default function HackathonTable({ hackathons, onSelect }) {
   };
 
   return (
-    <div className="space-y-2">
-      <ViewControls
-        filterValue={filter}
-        onFilterChange={setFilter}
-        filterOptions={filterOptions}
-        sortValue={sortMode}
-        onSortChange={handleSortModeChange}
-        sortOptions={sortOptions}
-      />
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-3">
+        <SuggestionModal />
+        <div className="w-full sm:w-auto">
+          <ViewControls
+            filterValue={filter}
+            onFilterChange={setFilter}
+            filterOptions={filterOptions}
+            sortValue={sortMode}
+            onSortChange={handleSortModeChange}
+            sortOptions={sortOptions}
+          />
+        </div>
+      </div>
 
       <div className={`${theme.card} overflow-hidden`}>
         <Table>
@@ -135,6 +141,7 @@ export default function HackathonTable({ hackathons, onSelect }) {
                 </button>
               </TableHead>
               <TableHead>End Date</TableHead>
+              <TableHead>Venue</TableHead>
               <TableHead>Tags</TableHead>
               <TableHead>
                 <button className={theme.tableHeaderButton} onClick={() => handleSort('status')}>
@@ -157,6 +164,9 @@ export default function HackathonTable({ hackathons, onSelect }) {
                     <TableCell className="font-medium">{hackathon.name}</TableCell>
                     <TableCell>{formatDate(hackathon.startDate)}</TableCell>
                     <TableCell>{formatDate(hackathon.endDate)}</TableCell>
+                    <TableCell className="max-w-[150px] truncate" title={hackathon.venue || 'TBA'}>
+                      {hackathon.venue || 'TBA'}
+                    </TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {hackathon.tags?.slice(0, 3).map((tag) => (
@@ -176,7 +186,7 @@ export default function HackathonTable({ hackathons, onSelect }) {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className={`py-10 text-center ${theme.subtext}`}>
+                <TableCell colSpan={6} className={`py-10 text-center ${theme.subtext}`}>
                   No hackathons found.
                 </TableCell>
               </TableRow>

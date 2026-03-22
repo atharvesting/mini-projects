@@ -72,6 +72,13 @@ export default function HackathonDrawer({ hackathon, open, onOpenChange }) {
             </div>
           </div>
 
+          {hackathon.venue ? (
+            <div>
+              <p className={`mb-2 text-sm font-medium ${theme.subtext}`}>Venue</p>
+              <p className="text-sm">{hackathon.venue}</p>
+            </div>
+          ) : null}
+
           <div>
             <p className={`mb-2 text-sm font-medium ${theme.subtext}`}>Description</p>
             <p className="text-sm leading-6 whitespace-pre-wrap">
