@@ -52,8 +52,20 @@ int nextWordsfSum(map<string, int>& a)
     return total;
 }
 
-void export2JSON(const string& file_name, const map<string, map<string, int>>& fMap) {
+void export2JSON(const string& file_name, map<string, map<string, int>> fMap) {
     json j(fMap);
+    writeFile(file_name, j.dump(4));
+}
+
+void export2JSON(const string& file_name, map<vector<string>, map<string, int>> fMap) {
+    json j;
+    for (const auto& [key, value] : fMap) {
+        string combined_key = key[0];
+        for (size_t i = 1; i < key.size(); i++) {
+            combined_key += " " + key[i];
+        }
+        j[combined_key] = value;
+    }
     writeFile(file_name, j.dump(4));
 }
 

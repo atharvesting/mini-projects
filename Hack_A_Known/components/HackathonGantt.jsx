@@ -138,13 +138,20 @@ export default function HackathonGantt({ hackathons, onSelect }) {
   }
 
   const { minDate, maxDate, totalDays } = timeline;
+  const monthTicks = getMonthTicks(minDate, maxDate);
+  const today = new Date();
+  const todayPercent = toPercent(today, minDate, totalDays);
+  const timelineLeftOffset = 236;
+  const showTodayLine =
+    differenceInCalendarDays(today, minDate) >= 0 &&
+    differenceInCalendarDays(maxDate, today) >= 0;
 
   const resetToToday = () => {
     setZoom(1);
     requestAnimationFrame(() => {
       if (!containerRef.current || !timeline) return;
-      const trackWidth = containerRef.current.scrollWidth - 236;
-      const centerOffset = 236 + (todayPercent / 100) * trackWidth;
+      const trackWidth = containerRef.current.scrollWidth - timelineLeftOffset;
+      const centerOffset = timelineLeftOffset + (todayPercent / 100) * trackWidth;
       containerRef.current.scrollLeft = centerOffset - containerRef.current.clientWidth / 2;
     });
   };
@@ -194,9 +201,16 @@ export default function HackathonGantt({ hackathons, onSelect }) {
           </div>
 
           <div className="relative mt-2">
+            <div
+              className="pointer-events-none absolute inset-y-0 left-0 z-20 bg-white dark:bg-zinc-900"
+              style={{ width: `${timelineLeftOffset}px` }}
+            />
+
             {showTodayLine ? (
-              <div className="pointer-events-none absolute inset-0 z-10 grid grid-cols-[220px_1fr] gap-4">
-                <div />
+              <div
+                className="pointer-events-none absolute inset-y-0 right-0 z-10"
+                style={{ left: `${timelineLeftOffset}px` }}
+              >
                 <div className="relative h-full">
                   <div
                     className="pointer-events-auto absolute top-0 bottom-0 flex w-4 -translate-x-1/2 justify-center group cursor-default"

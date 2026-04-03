@@ -86,6 +86,8 @@ export async function suggestHackathon(formData) {
     const rangeDateKey = findPropertyKey(schema, ['duration', 'date', 'dates', 'timeline'], 'date');
     const startDateKey = findPropertyKey(schema, ['start date', 'startdate', 'start'], 'date');
     const endDateKey = findPropertyKey(schema, ['end date', 'enddate', 'end', 'deadline'], 'date');
+    const startDateTextKey = findPropertyKey(schema, ['start date', 'startdate', 'start'], 'rich_text');
+    const endDateTextKey = findPropertyKey(schema, ['end date', 'enddate', 'end', 'deadline'], 'rich_text');
     const venueKey = findPropertyKey(schema, ['venue', 'location'], 'rich_text');
     const descriptionKey = findPropertyKey(schema, ['description', 'details', 'summary'], 'rich_text');
     const usernameKey = findPropertyKey(schema, ['username', 'contributor', 'contributor name'], 'rich_text');
@@ -118,9 +120,14 @@ export async function suggestHackathon(formData) {
     } else {
       if (startDateKey && startDate) {
         properties[startDateKey] = { date: { start: startDate } };
+      } else if (startDateTextKey && startDate) {
+        setRichText(properties, startDateTextKey, startDate);
       }
+
       if (endDateKey && endDate) {
         properties[endDateKey] = { date: { start: endDate } };
+      } else if (endDateTextKey && endDate) {
+        setRichText(properties, endDateTextKey, endDate);
       }
     }
 

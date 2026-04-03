@@ -6,6 +6,21 @@
 #include <iostream>
 using namespace std;
 
+inline vector<string> stringToArray(string& s)
+{
+	vector<string> words;
+	int pos = 0;
+	preprocessString(s);
+	stringstream ss(s);
+	string temp;
+
+	while (ss >> temp) {
+		words.push_back(temp);
+	}
+	return words;
+}
+
+
 using MapResult = variant<
 	map<string, map<string, int>>,
 	map<vector<string>, map<string, int>>
@@ -120,5 +135,25 @@ public:
 
 	void predict(string start, unsigned int word_count) override {
 		cout << "Here is the prediction" << endl;
+
+		auto& fMap = get <map<vector<string>, map<string, int>>>(model_data);
+
+		string delimiter = " ";
+		string token1 = start.substr(0, start.find(delimiter));
+		string token2 = start.substr(start.find(delimiter), start.find("\0"));
+		vector<string> current{ token1, token2 };
+
+		int i = 0;
+		for (int i = 0; i < word_count; i++) {
+
+			if (fMap.find(current) == fMap.end()) break;
+
+			map<string, int> temp = fMap.at(current);
+
+
+
+
+		}
+
 	}
 };
