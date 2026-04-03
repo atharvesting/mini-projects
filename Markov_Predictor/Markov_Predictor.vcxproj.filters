@@ -28,6 +28,7 @@
   <ItemGroup>
     <Text Include="cat.txt" />
     <Text Include="school.txt" />
+    <Text Include="train.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils.h">

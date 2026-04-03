@@ -86,7 +86,7 @@ public:
         uint32_t size = dict.idSequence.size();
         
         // For every word as a starting word in the window
-        for (uint32_t i = 1; i <= size - n_gram; i++)
+        for (uint32_t i = 0; i <= size - n_gram; i++)
         {
             uint32_t parentLoc = 0;
 
@@ -129,41 +129,57 @@ public:
         if (current == 0) return 0;
 
         while (arena[current].nextSibling != 0) {
-            //total += arena[current].frequency;
+            total += arena[current].frequency;
             current = arena[current].nextSibling;
-            count++;
         }
-        return count;
+        return total;
     }
 
-    void predict(vector<string>& starting_words, uint32_t word_count) {
+    void predict(vector<string> starting_words, uint32_t word_count) {
         if (starting_words.size() != n_gram - 1) {
             cout << "The model needs exactly " << n_gram - 1 << " starting word(s) to run" << endl;
             return;
         }
 
-        for (uint32_t i = 0; i < word_count + n_gram; i++) 
+        vector<string> seq;
+        seq.insert(seq.end(), starting_words.begin(), starting_words.end());
+
+        // Print out the starting words
+        for (const auto& word : seq) {
+            cout << word << " ";
+        }
+
+        // Start the main prediction loop
+        for (uint32_t i = 0; i < word_count; i++) 
         {
             uint32_t parent = 0;
-            for (const auto& word : starting_words) 
+
+            // Sliding window that takes the last n words of the vector into account
+            //cout << "\nSW START" << endl;
+            for (size_t j = i; j < seq.size(); j++) 
             {
-                uint32_t loc = findWordInChildren(parent, dict.wordtoId(word));
+                //cout << seq[j] << " ";
+                uint32_t loc = findWordInChildren(parent, dict.wordtoId(seq[j]));
                 parent = loc; // I am assuming that the starting_words are an existing sequence
             }
+            //cout << "SW END" << endl;
+
             uint32_t totalChildren = findTotalChildrenNonUnique(parent);
             double randomNum = randomNumGenerator();
             double cummulativeProb = 0.0;
             
             auto current = arena[parent].firstChild;
 
-            while (arena[current].nextSibling != 0) {
+            while (current != 0) {
                 //cout << "\nCurrent word: " << dict.idWordMap[arena[current].wordId] << "\n";
                 cummulativeProb += (double)arena[current].frequency / totalChildren;
                 
                 if (cummulativeProb > randomNum) {
                     string prediction = dict.idWordMap[arena[current].wordId];
-                    cout << "\nPredicted: " << prediction;
-                    starting_words.push_back(prediction);
+                    cout << prediction << " ";
+
+                    // This prediction will influence the next
+                    seq.push_back(prediction);
                     break;
                 }
                 
@@ -171,16 +187,14 @@ public:
             }
         }
     }
-
-
 };
 
 int main()
 {
-    MarkovTrie model("school.txt", 3);
+    MarkovTrie model("train.txt", 4);
     model.buildMarkovTrie();
-    vector<string> starting_words = { "the", "teacher" };
-    model.predict(starting_words, 5); 
+    vector<string> starting_words = { "it", "was", "in"};
+    model.predict(starting_words, 30); 
 
 
     return 0; 
