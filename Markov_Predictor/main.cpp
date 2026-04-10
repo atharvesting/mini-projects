@@ -191,9 +191,9 @@ public:
 
 int main()
 {
-    MarkovTrie model("train.txt", 4);
+    MarkovTrie model("train.txt", 2);
     model.buildMarkovTrie();
-    vector<string> starting_words = { "it", "was", "in"};
+    vector<string> starting_words = { "if" }; // "i", "must", "not"
     model.predict(starting_words, 30); 
 
 
