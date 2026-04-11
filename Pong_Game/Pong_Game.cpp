@@ -8,26 +8,35 @@
 int nScreenHeight{ 30 };
 int nScreenWidth{ 100 };
 
+// Bar Config
 float nBarStartIdx = 0;
 int nBarWidth{ 10 };
 int nBarLevel{ nScreenHeight - 2 };
 int nBarSpeed{ 20 };
+short nBarShade = 0x2593;
 
+// Ball Config
 int nBallX{ 0 };
 float fBallY{ 0 };
-int nBallSpeed{ 8 };
+int nBallSpeed{ 10 };
 bool bBallInScene{ false };
+short nBallShade = 0x2592;
 
-short nShade = 0x2593;
+// Game Config
+unsigned int nScore{ 0 };
+double chancePowerUpDoubleBar{ 0.01 };
 
-int nScore{ 0 };
-
-int randomNumGenerator(void) {
+static double randomNumGenerator(bool zeroToOne) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    static std::uniform_real_distribution<double> dis(1, nScreenWidth - 2);
-
-    return dis(gen);
+    if (zeroToOne) {
+        static std::uniform_real_distribution<double> dis(0, 1);
+        return dis(gen);
+    }
+    else {
+        static std::uniform_real_distribution<double> dis(1, nScreenWidth - 2);
+        return dis(gen);
+    }
 }
 
 int main()
@@ -51,6 +60,12 @@ int main()
 
         if (fBallY > nScreenHeight - 1) {
             bBallInScene = false;
+            if (nScore > 0) nScore--;
+        }
+
+        if ((int)fBallY == nBarLevel && nBarStartIdx - 1 <= nBallX && nBallX <= nBarStartIdx + nBarWidth) {
+            bBallInScene = false;
+            nScore++;
         }
         
         if (bBallInScene == false) 
@@ -76,10 +91,12 @@ int main()
         // Formula to write on the screen at (x, y) => screen[y * nScreenWidth + x]
         for (int i = 0; i < nBarWidth; i++) 
         {
-            screen[nBarLevel * nScreenWidth + (int)nBarStartIdx + i] = nShade;
+            screen[nBarLevel * nScreenWidth + (int)nBarStartIdx + i] = nBarShade;
         }
 
-        screen[(int)fBallY * nScreenWidth + nBallX] = nShade;
+        screen[(int)fBallY * nScreenWidth + nBallX] = nBallShade;
+        // screen[0] = (wchar_t)nScore;
+        swprintf_s(&screen[0], 12, L"Score = %d", nScore);
 
         WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0, 0 }, &dwBytesWritten);
     }
