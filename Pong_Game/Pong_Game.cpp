@@ -1,13 +1,15 @@
 // Pong_Game.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 #include <iostream>
+#include <cstdlib>
 #include <Windows.h>
 #include <random>
 #include <chrono>
+#include <unordered_map>
 
 class GameManager; // Forward declaration
 
-/*
+/* Future Ideas:
 * Curse in Disguise: A nerf that reveals itself late.
 * Golden Points Powerup: Cascade of balls falling from left first to right then back to left
 * 
@@ -41,7 +43,6 @@ protected:  // Such that only derived classes can access them
     int speed;
     bool inScene;
     short skin;
-    bool isPowerup;
 
 public:
     Fallable(int x, float y, int speed, short skin)
@@ -74,8 +75,8 @@ public:
         return this->inScene;
     }
 
-    bool is_powerup() {
-        return this->isPowerup;
+    void remove_from_scene() {
+        inScene = false;
     }
 
     virtual ~Fallable() {}
@@ -86,7 +87,6 @@ class Ball : public Fallable {
 public:
     Ball(int speed, short skin)
         : Fallable(randomNumGenerator(false, 1, nScreenWidth - 1), 0, speed, skin) {
-        isPowerup = false;
     }
 
     void update(float fElapsedTime) override {
@@ -108,19 +108,25 @@ class PowerUp : public Fallable {
 protected:
     int duration;
     double elapsedTime;
-    double cooldown;
     bool isActive;
 
 public:
-    PowerUp(int speed, short skin, int duration, double cooldown)
-        : Fallable(randomNumGenerator(false, 1, nScreenWidth - 1), 
-            0, speed, skin), duration(duration), isActive(false), elapsedTime(0), cooldown(cooldown) {
-        isPowerup = true;
+    PowerUp(int speed, short skin, int duration)
+        : Fallable(randomNumGenerator(false, 1, nScreenWidth - 2), 
+            0, speed, skin), duration(duration), isActive(false), elapsedTime(0) {
     }
 
     void update(float fElapsedTime) {
         coordY += fElapsedTime * this->speed;
         elapsedTime += fElapsedTime;
+    }
+
+    bool is_active() {
+        return isActive;
+    }
+
+    bool time_left() {
+        return duration > elapsedTime;
     }
 
     virtual void deactivate(GameManager& game) = 0;
@@ -135,7 +141,8 @@ public:
 class PUdoubleBar : public PowerUp {
 public:
     PUdoubleBar()
-        : PowerUp(13, 0x1111, 7, 10) { }
+        : PowerUp(13, 0x002B, 7) {
+    }
 
     void on_collision(GameManager& game, bool hitBar) override;
     void deactivate(GameManager& game) override;
@@ -146,7 +153,7 @@ public:
 class PUdoublePoints : public PowerUp {
 public:
     PUdoublePoints()
-        : PowerUp(13, 0x1111, 7, 10) {
+        : PowerUp(13, 0x0058, 10) {
     }  // 1000 ms
 
     void on_collision(GameManager& game, bool hitBar) override;
@@ -155,29 +162,43 @@ public:
     ~PUdoublePoints() {}
 };
 
-enum class EntityType {
-    Ball,
-    PUdoubleBar,
-    PUdoublePoints,
+class PUenhancedSpeed : public PowerUp {
+public:
+    PUenhancedSpeed()
+        : PowerUp(13, 0x2192, 7) {
+    }
+
+    void on_collision(GameManager& game, bool hitBar) override;
+    void deactivate(GameManager& game) override;
+
+    ~PUenhancedSpeed() {}
 };
 
+enum class PowerUpType {
+    PUdoubleBar,
+    PUdoublePoints,
+    PUenhancedSpeed,
+};
 
 class FallableFactory {
 public:
-    static std::unique_ptr<Fallable> create_entity(EntityType type) {
+    static std::unique_ptr<Ball> create_ball() {
+        return std::make_unique<Ball>(10, 0x2B24); // Ball: 0x2B24
+    }
+
+    static std::unique_ptr<PowerUp> create_powerup(PowerUpType type) {
         switch (type) {
-            case EntityType::Ball:
-                return std::make_unique<Ball>(10, 0x2B24); // Ball: 0x2B24
-            case EntityType::PUdoubleBar:
+            case PowerUpType::PUdoubleBar:
                 return std::make_unique<PUdoubleBar>();
-            case EntityType::PUdoublePoints:
+            case PowerUpType::PUdoublePoints:
                 return std::make_unique<PUdoublePoints>();
+            case PowerUpType::PUenhancedSpeed:
+                return std::make_unique<PUenhancedSpeed>();
             default:
                 return nullptr;
-        }
+            }
     }
 };
-
 
 class GameManager {
 public:
@@ -185,10 +206,10 @@ public:
         float fStartIdx = 0;
         int nWidth{ 10 };
         int nLevel{ nScreenHeight - 2 };
-        int nSpeed{ 20 };
+        float nSpeed{ 20 };
         short nSkin = 0x5F;  // 0x2593
 
-        void transform(int multiplier) {
+        void transform(float multiplier) {
             nWidth *= multiplier;
         }
 
@@ -198,16 +219,25 @@ public:
 
     } bar;
 
-    std::vector<std::unique_ptr<Fallable>> collection;
+    std::vector<std::unique_ptr<Ball>> balls;
+    std::vector<std::unique_ptr<PowerUp>> powerups;
     unsigned int nScore = 0;
     float nScoreMultiplier = 1;
+
+    std::unordered_map<PowerUpType, float> spawnTable = {
+        { PowerUpType::PUdoubleBar,     0.005 },
+        { PowerUpType::PUdoublePoints,  0.001 },
+        { PowerUpType::PUenhancedSpeed, 0.005 },
+    };
 
     void update_score(int num, float multiplier) {
         nScore += num * multiplier;
     }
 
-    void update(float fElapsedTime) 
+    void update(float fElapsedTime)
     {
+        
+        // Bar Movement Logic
         if (GetAsyncKeyState((unsigned short)'A') & 0x8000)
         {
             if (bar.fStartIdx > 0) bar.fStartIdx -= bar.nSpeed * fElapsedTime;
@@ -217,10 +247,19 @@ public:
             if (bar.fStartIdx < nScreenWidth - bar.nWidth - 1) bar.fStartIdx += bar.nSpeed * fElapsedTime;
         }
 
-        bool spawnBall = false;
-        bool spawnPowerup = false;
+        // Powerup spawning Logic
+        for (auto& [type, rate] : spawnTable) {
+            double p = rate * fElapsedTime;
 
-        for (auto it = collection.begin(); it != collection.end(); ) 
+            if ((rand() / (double)RAND_MAX) < p) {
+                if (powerups.size() < 5) powerups.push_back(FallableFactory::create_powerup(type));
+            }
+        }
+
+        bool spawnBall = false;
+
+        // Updating the balls
+        for (auto it = balls.begin(); it != balls.end(); ) 
         {
             (*it)->update(fElapsedTime);
 
@@ -231,21 +270,44 @@ public:
                 (*it)->on_collision(*this, hitBar);
                 spawnBall = true;
 
-                if ((*it)->is_powerup()) spawnPowerup = true;
-
-                it = collection.erase(it);
+                it = balls.erase(it);
             }
             else {
-                ++it;
+                ++it; 
             }
         }
 
-        if ((spawnPowerup and not spawnBall)) {  //  
-            collection.push_back(FallableFactory::create_entity(EntityType::PUdoubleBar));
-        }
+        if (spawnBall) balls.push_back(FallableFactory::create_ball());
 
-        if (spawnBall) {
-            collection.push_back(FallableFactory::create_entity(EntityType::Ball));
+        // Updating the powerups
+        for (auto it = powerups.begin(); it != powerups.end(); )
+        {
+            (*it)->update(fElapsedTime);
+
+            // If already active
+            if ((*it)->is_active()) 
+            {
+                if ((*it)->time_left() == false) {
+                    (*it)->deactivate((*this));
+                    it = powerups.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
+            // If inactive
+            else 
+            {
+                bool hitGround = (*it)->is_collision_ground();
+                bool hitBar = (*it)->is_collision_bar(bar.fStartIdx, bar.nLevel, bar.nWidth);
+
+                if (!hitGround and !hitBar) ++it;
+                else if (hitBar) {
+                    (*it)->on_collision((*this), hitBar);
+                    ++it;
+                }
+                else it = powerups.erase(it);
+            }
         }
     }
 
@@ -257,10 +319,13 @@ public:
         // Formula to write on the screen at (x, y) => screen[y * nScreenWidth + x]
         for (int i = 1; i < bar.nWidth - 1; i++)
         {
-            
             screen[bar.nLevel * nScreenWidth + (int)bar.fStartIdx + i] = bar.nSkin;
         }
-        for (auto it = collection.begin(); it != collection.end(); ++it) 
+        for (auto it = balls.begin(); it != balls.end(); ++it) 
+        {
+            (*it)->draw(screen, nScreenWidth);
+        }
+        for (auto it = powerups.begin(); it != powerups.end(); ++it)
         {
             (*it)->draw(screen, nScreenWidth);
         }
@@ -268,24 +333,41 @@ public:
 };
 
 inline void Ball::on_collision(GameManager& game, bool hitBar) {
-    if (hitBar) game.nScore++;
-    else if (game.nScore > 0) game.nScore--;
+    if (hitBar) game.update_score(1, game.nScoreMultiplier);
+    else if (game.nScore > 0) game.update_score(-2, game.nScoreMultiplier);
 }
 
 inline void PUdoubleBar::on_collision(GameManager& game, bool hitBar) {
-    if (hitBar) game.bar.transform(2);
+    if (hitBar && game.bar.nWidth <= 20) {
+        isActive = true; inScene = false; elapsedTime = 0;
+        game.bar.transform(2);
+    }
 }
 
 inline void PUdoubleBar::deactivate(GameManager& game) {
-    game.bar.reset();
+    if (game.bar.nWidth > 10) game.bar.transform(0.5);
 }
 
 inline void PUdoublePoints::on_collision(GameManager& game, bool hitBar) {
-    if (hitBar) game.nScoreMultiplier = 2;
+    if (hitBar) {
+        isActive = true; inScene = false; elapsedTime = 0;
+        game.nScoreMultiplier = 2;
+    }
 }
 
 inline void PUdoublePoints::deactivate(GameManager& game) {
-    game.nScoreMultiplier /= 2;
+    if (game.nScoreMultiplier >= 2) game.nScoreMultiplier /= 2;
+}
+
+inline void PUenhancedSpeed::on_collision(GameManager& game, bool hitBar) {
+    if (hitBar) {
+        isActive = true; inScene = false; elapsedTime = 0;
+        game.bar.nSpeed *= 1.25;
+    }
+}
+
+inline void PUenhancedSpeed::deactivate(GameManager& game) {
+    game.bar.nSpeed /= 1.25;
 }
 
 int main()
@@ -299,7 +381,7 @@ int main()
     auto tp2 = std::chrono::system_clock::now();
 
     GameManager game;
-    game.collection.push_back(FallableFactory::create_entity(EntityType::Ball));
+    game.balls.push_back(FallableFactory::create_ball());
     //auto ball = Ball(0x0A20, 10); // Solid ball = 0x2B24
 
     while (1) 
