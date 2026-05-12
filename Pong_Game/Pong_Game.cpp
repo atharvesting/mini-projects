@@ -1,18 +1,19 @@
 // Pong_Game.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+
 #include <iostream>
 #include <cstdlib>
 #include <Windows.h>
 #include <random>
 #include <chrono>
 #include <unordered_map>
+#include <functional>
+#include <cmath>
 
 class GameManager; // Forward declaration
 
 /* Future Ideas:
 * Curse in Disguise: A nerf that reveals itself late.
 * Golden Points Powerup: Cascade of balls falling from left first to right then back to left
-* 
 * Biohazard: 0x2623
 */
 
@@ -32,40 +33,39 @@ static double randomNumGenerator(bool generateZeroToOne, int low, int high) {
     }
 }
 
-static double linearCongruentialGenerator(int seed, int multiplier, int increment, int mod) {
-    return (seed * multiplier + increment) % mod;
-}
-
 class Fallable {
 protected:  // Such that only derived classes can access them
-    int coordX;
+    float coordX;
     float coordY;
-    int speed;
+    float speedX;
+    int speedY;
     bool inScene;
     short skin;
 
 public:
     Fallable(int x, float y, int speed, short skin)
-        : coordX(x), coordY(y), speed(speed), inScene(true), skin(skin) {}
+        : coordX(x), coordY(y), speedX(0), speedY(speed), inScene(true), skin(skin) {}
 
     virtual void update(float elapsedTime) = 0;
     virtual void draw(wchar_t* screen, int nScreenWidth) = 0;
     virtual void on_collision(GameManager& game, bool hitBar) = 0;
 
     bool is_collision_bar(int barX, int barLevel, int barWidth) {
-        if ((int)this->coordY == barLevel 
-            && barX - 1 <= this->coordX
-            && this->coordX <= barX + barWidth) 
+
+        if (static_cast<int>(coordY) >= barLevel 
+            && barX - 1 <= coordX
+            && coordX <= barX + barWidth) 
         {
-            this->inScene = false;
+            inScene = false;
             return true;
         }
+
         return false;
     }
 
     bool is_collision_ground() {
-        if ((int)this->coordY == nScreenHeight - 1) {
-            this->inScene = false;
+        if (static_cast<int>(coordY) >= nScreenHeight - 1) {
+            inScene = false;
             return true;
         }
         return false;
@@ -79,6 +79,14 @@ public:
         inScene = false;
     }
 
+    void set_speedX(float newSpeedX) {
+        speedX = newSpeedX;
+    }
+
+    float getCoordX() {
+        return coordX;
+    }
+
     virtual ~Fallable() {}
 
 };
@@ -90,13 +98,20 @@ public:
     }
 
     void update(float fElapsedTime) override {
-        this->coordY += speed * fElapsedTime;
+        coordY += speedY * fElapsedTime;
+        float nextX = coordX + (speedX * fElapsedTime);
+
+        // Keep ball within horizontal bounds [0, nScreenWidth - 1]
+        if (nextX >= 0 && nextX < nScreenWidth) {
+            coordX = nextX;
+        }
+        else {
+            speedX *= -1; // Optional: bounce off walls
+        }
     }
 
-    void draw(wchar_t* screen, int screenWidth) override {
-        if (this->inScene) {
-            screen[(int)this->coordY * screenWidth + this->coordX] = skin;
-        }
+    void draw(wchar_t* screen, int nScreenWidth) override {
+        if (inScene) screen[static_cast<int>(coordY) * nScreenWidth + static_cast<int>(coordX)] = skin;
     }
 
     void on_collision(GameManager& game, bool hitBar) override;
@@ -109,16 +124,28 @@ protected:
     int duration;
     double elapsedTime;
     bool isActive;
+    std::function<void(GameManager&)> activateCallback;
+    std::function<void(GameManager&)> deactivateCallback;
 
 public:
-    PowerUp(int speed, short skin, int duration)
-        : Fallable(randomNumGenerator(false, 1, nScreenWidth - 2), 
-            0, speed, skin), duration(duration), isActive(false), elapsedTime(0) {
-    }
+    PowerUp(int speed, short skin, int duration,
+        std::function<void(GameManager&)> onActivate,
+        std::function<void(GameManager&)> onDeactivate)
+        : Fallable(randomNumGenerator(false, 1, nScreenWidth - 2), 0, speed, skin), 
+            duration(duration), isActive(false), elapsedTime(0),
+            activateCallback(onActivate), deactivateCallback(onDeactivate) {}
 
     void update(float fElapsedTime) {
-        coordY += fElapsedTime * this->speed;
+        coordY += fElapsedTime * speedY;
+        coordX += fElapsedTime * speedX;
         elapsedTime += fElapsedTime;
+    }
+
+    void on_collision(GameManager& game, bool hitBar) {
+        if (hitBar) {
+            isActive = true; elapsedTime = 0; inScene = false;
+            if (activateCallback) activateCallback(game);
+        }
     }
 
     bool is_active() {
@@ -129,75 +156,28 @@ public:
         return duration > elapsedTime;
     }
 
-    virtual void deactivate(GameManager& game) = 0;
-
     void draw(wchar_t* screen, int nScreenWidth) {
-        if (this->inScene) screen[(int)this->coordY * nScreenWidth + this->coordX] = this->skin;
+        if (inScene) screen[static_cast<int>(coordY) * nScreenWidth + static_cast<int>(coordX)] = skin;
+    }
+
+    void deactivate(GameManager& game) {
+        if (deactivateCallback) deactivateCallback(game);
     }
 
     ~PowerUp() {}
 };
 
-class PUdoubleBar : public PowerUp {
-public:
-    PUdoubleBar()
-        : PowerUp(13, 0x002B, 7) {
-    }
-
-    void on_collision(GameManager& game, bool hitBar) override;
-    void deactivate(GameManager& game) override;
-
-    ~PUdoubleBar() {}
-};
-
-class PUdoublePoints : public PowerUp {
-public:
-    PUdoublePoints()
-        : PowerUp(13, 0x0058, 10) {
-    }  // 1000 ms
-
-    void on_collision(GameManager& game, bool hitBar) override;
-    void deactivate(GameManager& game) override;
-
-    ~PUdoublePoints() {}
-};
-
-class PUenhancedSpeed : public PowerUp {
-public:
-    PUenhancedSpeed()
-        : PowerUp(13, 0x2192, 7) {
-    }
-
-    void on_collision(GameManager& game, bool hitBar) override;
-    void deactivate(GameManager& game) override;
-
-    ~PUenhancedSpeed() {}
-};
-
 enum class PowerUpType {
-    PUdoubleBar,
-    PUdoublePoints,
-    PUenhancedSpeed,
+    PUdoubleBar,        // PowerUp(13, 0x002B, 7)
+    PUdoublePoints,     // PowerUp(13, 0x0058, 10)
+    PUenhancedSpeed,    // PowerUp(13, 0x2192, 7)
+    PUmagnetBar,
 };
 
 class FallableFactory {
 public:
-    static std::unique_ptr<Ball> create_ball() {
-        return std::make_unique<Ball>(10, 0x2B24); // Ball: 0x2B24
-    }
-
-    static std::unique_ptr<PowerUp> create_powerup(PowerUpType type) {
-        switch (type) {
-            case PowerUpType::PUdoubleBar:
-                return std::make_unique<PUdoubleBar>();
-            case PowerUpType::PUdoublePoints:
-                return std::make_unique<PUdoublePoints>();
-            case PowerUpType::PUenhancedSpeed:
-                return std::make_unique<PUenhancedSpeed>();
-            default:
-                return nullptr;
-            }
-    }
+    static std::unique_ptr<Ball> create_ball();
+    static std::unique_ptr<PowerUp> create_powerup(PowerUpType type);
 };
 
 class GameManager {
@@ -223,11 +203,13 @@ public:
     std::vector<std::unique_ptr<PowerUp>> powerups;
     unsigned int nScore = 0;
     float nScoreMultiplier = 1;
+    bool magnetic = false;
 
     std::unordered_map<PowerUpType, float> spawnTable = {
-        { PowerUpType::PUdoubleBar,     0.005 },
-        { PowerUpType::PUdoublePoints,  0.001 },
-        { PowerUpType::PUenhancedSpeed, 0.005 },
+        { PowerUpType::PUdoubleBar,         0.005   },
+        { PowerUpType::PUdoublePoints,      0.001   },
+        { PowerUpType::PUenhancedSpeed,     0.005   },
+        { PowerUpType::PUmagnetBar,         0.1 },
     };
 
     void update_score(int num, float multiplier) {
@@ -257,10 +239,16 @@ public:
         }
 
         bool spawnBall = false;
+        int barMid = static_cast<int>((2 * bar.fStartIdx + bar.nWidth) / 2);
 
         // Updating the balls
         for (auto it = balls.begin(); it != balls.end(); ) 
         {
+            if (magnetic) {
+                float current_X = (*it)->getCoordX();
+                if (std::abs(current_X - barMid) > 8) (*it)->set_speedX((barMid - current_X) / 4);
+            }
+
             (*it)->update(fElapsedTime);
 
             bool hitBar = (*it)->is_collision_bar(bar.fStartIdx, bar.nLevel, bar.nWidth);
@@ -332,42 +320,40 @@ public:
     }
 };
 
-inline void Ball::on_collision(GameManager& game, bool hitBar) {
+void Ball::on_collision(GameManager& game, bool hitBar) {
     if (hitBar) game.update_score(1, game.nScoreMultiplier);
     else if (game.nScore > 0) game.update_score(-2, game.nScoreMultiplier);
 }
 
-inline void PUdoubleBar::on_collision(GameManager& game, bool hitBar) {
-    if (hitBar && game.bar.nWidth <= 20) {
-        isActive = true; inScene = false; elapsedTime = 0;
-        game.bar.transform(2);
+std::unique_ptr<Ball> FallableFactory::create_ball() {
+    return std::make_unique<Ball>(10, 0x2B24);
+}
+
+std::unique_ptr<PowerUp> FallableFactory::create_powerup(PowerUpType type) {
+    switch (type) {
+        case PowerUpType::PUdoubleBar:
+            return std::make_unique<PowerUp>(12, 0x002B, 7,
+                [](GameManager& game) { if (game.bar.nWidth <= 20) game.bar.transform(2); },
+                [](GameManager& game) { if (game.bar.nWidth > 10) game.bar.transform(0.5); }
+            );
+        case PowerUpType::PUdoublePoints:
+            return std::make_unique<PowerUp>(10, 0x0058, 10,
+                [](GameManager& game) { game.nScoreMultiplier *= 2; },
+                [](GameManager& game) { game.nScoreMultiplier /= 2; }
+            );
+        case PowerUpType::PUenhancedSpeed:
+            return std::make_unique<PowerUp>(12, 0x2192, 7,
+                [](GameManager& game) { game.bar.nSpeed *= 1.25; },
+                [](GameManager& game) { game.bar.nSpeed /= 1.25; }
+            );
+        case PowerUpType::PUmagnetBar:
+            return std::make_unique<PowerUp>(13, 0x2229, 15,
+                [](GameManager& game) { game.magnetic = true; },
+                [](GameManager& game) { game.magnetic = false; }
+            );
+        default:
+            return nullptr; 
     }
-}
-
-inline void PUdoubleBar::deactivate(GameManager& game) {
-    if (game.bar.nWidth > 10) game.bar.transform(0.5);
-}
-
-inline void PUdoublePoints::on_collision(GameManager& game, bool hitBar) {
-    if (hitBar) {
-        isActive = true; inScene = false; elapsedTime = 0;
-        game.nScoreMultiplier = 2;
-    }
-}
-
-inline void PUdoublePoints::deactivate(GameManager& game) {
-    if (game.nScoreMultiplier >= 2) game.nScoreMultiplier /= 2;
-}
-
-inline void PUenhancedSpeed::on_collision(GameManager& game, bool hitBar) {
-    if (hitBar) {
-        isActive = true; inScene = false; elapsedTime = 0;
-        game.bar.nSpeed *= 1.25;
-    }
-}
-
-inline void PUenhancedSpeed::deactivate(GameManager& game) {
-    game.bar.nSpeed /= 1.25;
 }
 
 int main()
@@ -378,6 +364,7 @@ int main()
     DWORD dwBytesWritten = 0;
 
     auto tp1 = std::chrono::system_clock::now();
+    auto startTime = tp1;
     auto tp2 = std::chrono::system_clock::now();
 
     GameManager game;
@@ -397,9 +384,8 @@ int main()
 
         game.update(fElapsedTime);
         game.draw(screen, nScreenWidth);
-
-        // screen[0] = (wchar_t)nScore;
-        swprintf_s(&screen[0], 12, L"Score = %d", game.nScore);
+        std::chrono::duration<float> gameDuration = tp1 - startTime;
+        swprintf_s(&screen[0], 30, L"Score = %d, Time = %d", game.nScore, static_cast<int>(gameDuration.count()));
 
         WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0, 0 }, &dwBytesWritten);
     }
