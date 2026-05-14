@@ -3,5 +3,5 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="Spalten.vcxproj" />
+  <Project Path="Spalten.vcxproj" Id="b09ee9f4-2436-4cf1-ae60-2b2305bcbac5" />
 </Solution>

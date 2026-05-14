@@ -75,10 +75,6 @@ public:
         return this->inScene;
     }
 
-    void remove_from_scene() {
-        inScene = false;
-    }
-
     void set_speedX(float newSpeedX) {
         speedX = newSpeedX;
     }
@@ -168,10 +164,13 @@ public:
 };
 
 enum class PowerUpType {
-    PUdoubleBar,        // PowerUp(13, 0x002B, 7)
-    PUdoublePoints,     // PowerUp(13, 0x0058, 10)
-    PUenhancedSpeed,    // PowerUp(13, 0x2192, 7)
+    PUdoubleBar,        
+    PUdoublePoints,    
+    PUenhancedSpeed,    
     PUmagnetBar,
+    PUdaBomb,
+    PUdaBlessing,
+    PUantiMagnetBar,
 };
 
 class FallableFactory {
@@ -183,10 +182,10 @@ public:
 class GameManager {
 public:
     struct Bar {
-        float fStartIdx = 0;
+        float fStartIdx = nScreenWidth / 2;
         int nWidth{ 10 };
         int nLevel{ nScreenHeight - 2 };
-        float nSpeed{ 20 };
+        float nSpeed{ 24 };
         short nSkin = 0x5F;  // 0x2593
 
         void transform(float multiplier) {
@@ -204,12 +203,17 @@ public:
     unsigned int nScore = 0;
     float nScoreMultiplier = 1;
     bool magnetic = false;
+    bool antimagnetic = false;
+    int antiMagneticFactor = 1;
 
     std::unordered_map<PowerUpType, float> spawnTable = {
-        { PowerUpType::PUdoubleBar,         0.005   },
-        { PowerUpType::PUdoublePoints,      0.001   },
-        { PowerUpType::PUenhancedSpeed,     0.005   },
-        { PowerUpType::PUmagnetBar,         0.1 },
+        { PowerUpType::PUdoubleBar,         0.005       },
+        { PowerUpType::PUdoublePoints,      0.001       },
+        { PowerUpType::PUenhancedSpeed,     0.005       },
+        { PowerUpType::PUmagnetBar,         0.0001      },
+        { PowerUpType::PUdaBomb,            0.5         },
+        { PowerUpType::PUdaBlessing,        0.000001    },
+        { PowerUpType::PUantiMagnetBar,     0.05        }   
     };
 
     void update_score(int num, float multiplier) {
@@ -234,19 +238,20 @@ public:
             double p = rate * fElapsedTime;
 
             if ((rand() / (double)RAND_MAX) < p) {
-                if (powerups.size() < 5) powerups.push_back(FallableFactory::create_powerup(type));
+                if (powerups.size() < 10) powerups.push_back(FallableFactory::create_powerup(type));
             }
         }
 
         bool spawnBall = false;
         int barMid = static_cast<int>((2 * bar.fStartIdx + bar.nWidth) / 2);
-
+        
         // Updating the balls
         for (auto it = balls.begin(); it != balls.end(); ) 
         {
             if (magnetic) {
                 float current_X = (*it)->getCoordX();
-                if (std::abs(current_X - barMid) > 8) (*it)->set_speedX((barMid - current_X) / 4);
+                antiMagneticFactor = antimagnetic ? -1 : 1;
+                if (std::abs(current_X - barMid) > 4) (*it)->set_speedX((antiMagneticFactor * (barMid - current_X) / 4));
             }
 
             (*it)->update(fElapsedTime);
@@ -348,8 +353,26 @@ std::unique_ptr<PowerUp> FallableFactory::create_powerup(PowerUpType type) {
             );
         case PowerUpType::PUmagnetBar:
             return std::make_unique<PowerUp>(13, 0x2229, 15,
-                [](GameManager& game) { game.magnetic = true; },
-                [](GameManager& game) { game.magnetic = false; }
+                [](GameManager& game) { 
+                    if (!game.antimagnetic) game.magnetic = true;
+                    else game.antimagnetic = false;
+                },
+                [](GameManager& game) { if (!game.antimagnetic) game.magnetic = false; }
+            );
+        case PowerUpType::PUdaBomb:
+            return std::make_unique<PowerUp>(5, 0x2764, 1,
+                [](GameManager& game) { game.nScore -= 5; },
+                nullptr
+            );
+        case PowerUpType::PUdaBlessing:
+            return std::make_unique<PowerUp>(12, 0x2623, 1,
+                [](GameManager& game) { game.nScore += game.nScoreMultiplier * 50; },
+                nullptr
+            );
+        case PowerUpType::PUantiMagnetBar:
+            return std::make_unique<PowerUp>(12, 0x2624, 7,
+                [](GameManager& game) { game.magnetic = true; game.antimagnetic = true; },
+                [](GameManager& game) { game.magnetic = false; game.antimagnetic = false; }
             );
         default:
             return nullptr; 

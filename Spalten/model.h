@@ -42,14 +42,8 @@ public:
 		return rix[r * cols + c];
 	}
 
-	void copy(Matrix<T>& other) {
-		if (rix.size() == other.rix.size()) {
-			rix = other.rix;
-		}
-	}
-
 	Matrix<T> operator+(const Matrix<T>& other) const {
-		if (rows == other.rows and cols == other.cols) {
+		if (this->rows == other.rows and this->cols == other.cols) {
 			Matrix<T> result(rows, cols);
 			for (size_t i = 0; i < rix.size(); i++)
 				result.rix[i] = rix[i] + other.rix[i];
@@ -57,6 +51,41 @@ public:
 		}
 		else {
 			throw std::invalid_argument("Dimensions of matrices must match for addition.");
+		}
+	}
+
+	Matrix<T> operator-(const Matrix<T>& other) const {
+		if (this->rows == other.rows and this->cols == other.cols) {
+			Matrix<T> result(rows, cols);
+			for (size_t i = 0; i < rix.size(); i++)
+				result.rix[i] = rix[i] - other.rix[i];
+			return result;
+		}
+		else {
+			throw std::invalid_argument("Dimensions of matrices must match for subtraction.");
+		}
+	}
+
+	Matrix<T> operator*(const Matrix<T>& other) const {
+		if (this->cols == other.rows) {
+			Matrix<T> result(this->rows, other.cols);
+			for (int i = 0; i < this->rows; i++) {
+				for (int j = 0; j < other.cols; j++) {
+					for (int k = 0; k < this->cols; k++) {
+						result(i, j) += (*this)(i, k) * other(k, j);
+					}
+				}
+			}
+			return result;
+		}
+		else {
+			throw std::invalid_argument("Column count of first and Row count of second must match for matrix multiplication.");
+		}
+	}
+
+	void copy(Matrix<T>& other) {
+		if (rix.size() == other.rix.size()) {
+			rix = other.rix;
 		}
 	}
 
