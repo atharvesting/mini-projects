@@ -33,6 +33,8 @@
 
 - [Console FPS](Console_FPS/README.md) ✅: Guided project for 2d raycasting game engine (YT: One Lone Coder)
 
+- [Pong Game](Pong_Game/README.md) ✅: Single-paddle pong-style console game with power-ups (Windows-only).
+
 - [MOOCfi File Extractor](MOOCfi_File_Extracter/main.py) ✅: Script for extracting all personal solutions for problems from the MOOC.fi Python course.
 
 - [Personal Knowledge CLI](Personal_Knowledge_CLI) ✅: Rudimentary knowledge management system (One of my first Python projects)
@@ -41,5 +43,3 @@
 ### Vibe-coded:
 
 - [Hack-A-Known](Hack-A-Known/README.md) (MVP): React Webapp for a curated list of past, ongoing, and upcoming hackathons for easy discovery and tracking. Minimal and thoughtful UI. Notion DB integration.
-
-- [YT2Notes Script](YT2Notes/yt2notes.py) ✅: Script to extract transcripts from long lectures on YouTube and summarize them using local LLMs.

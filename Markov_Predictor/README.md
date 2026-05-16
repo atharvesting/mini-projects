@@ -17,7 +17,7 @@ To build a trigram (currently bigram) text prediction system that analyzes word 
 
 ## Roadmap & Features
 - [x] **Phase 1: Bigram Model** - Core prediction logic.
-- [ ] **Phase 2: Trigram Support** - Higher context prediction.
+- [x] **Phase 2: Trigram Support** - Higher context prediction.
 - [ ] **Phase 3: CLI UI** - Improved user interface for inputting seeds.
 
 ## Example Outputs:
@@ -41,6 +41,6 @@ For more on Markov chains, see the [Wikipedia article](https://en.wikipedia.org/
 
 
 TODO:
-- Export model as JSON
-- Working Trigram model
+- ~~Export model as JSON~~
+- ~~Working Trigram model~~
 - Live text prediction and model updation

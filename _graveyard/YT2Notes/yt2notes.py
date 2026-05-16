@@ -1,3 +1,5 @@
+# THIS PROJECT IS VIBE CODED!! THAT IS WHY ITS IN THE GRAVEYARD!
+
 import subprocess
 import sys
 import re

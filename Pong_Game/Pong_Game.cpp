@@ -1,5 +1,3 @@
-// Pong_Game.cpp : This file contains the 'main' function. Program execution begins and ends there.
-
 #include <iostream>
 #include <cstdlib>
 #include <Windows.h>
@@ -8,14 +6,9 @@
 #include <unordered_map>
 #include <functional>
 #include <cmath>
+#include <format>
 
 class GameManager; // Forward declaration
-
-/* Future Ideas:
-* Curse in Disguise: A nerf that reveals itself late.
-* Golden Points Powerup: Cascade of balls falling from left first to right then back to left
-* Biohazard: 0x2623
-*/
 
 const int nScreenHeight{ 30 };
 const int nScreenWidth{ 100 };
@@ -102,7 +95,7 @@ public:
             coordX = nextX;
         }
         else {
-            speedX *= -1; // Optional: bounce off walls
+            speedX *= -1; // Ball will bounce off the wall
         }
     }
 
@@ -133,7 +126,6 @@ public:
 
     void update(float fElapsedTime) {
         coordY += fElapsedTime * speedY;
-        coordX += fElapsedTime * speedX;
         elapsedTime += fElapsedTime;
     }
 
@@ -163,6 +155,25 @@ public:
     ~PowerUp() {}
 };
 
+class PUinDisguise : public PowerUp {
+public:
+    short realSkin;
+
+    PUinDisguise(int speed, short skin, int duration,
+        std::function<void(GameManager&)> onActivate,
+        std::function<void(GameManager&)> onDeactivate,
+        short realSkin)
+        : PowerUp(speed, skin, duration, onActivate, onDeactivate), realSkin(realSkin) {
+    }
+
+    void update(float fElapsedTime) {
+        coordY += fElapsedTime * speedY;
+        elapsedTime += fElapsedTime;
+
+        if (elapsedTime > 0.7 * (nScreenHeight / speedY)) skin = realSkin;
+    }
+};
+
 enum class PowerUpType {
     PUdoubleBar,        
     PUdoublePoints,    
@@ -171,6 +182,10 @@ enum class PowerUpType {
     PUdaBomb,
     PUdaBlessing,
     PUantiMagnetBar,
+    PUbid,
+    PUcid,
+    PUhalfPoints,
+    PUhalfSpeed,
 };
 
 class FallableFactory {
@@ -200,20 +215,25 @@ public:
 
     std::vector<std::unique_ptr<Ball>> balls;
     std::vector<std::unique_ptr<PowerUp>> powerups;
-    unsigned int nScore = 0;
+    int nScore = 0;
     float nScoreMultiplier = 1;
     bool magnetic = false;
     bool antimagnetic = false;
     int antiMagneticFactor = 1;
+    int barMid;
 
     std::unordered_map<PowerUpType, float> spawnTable = {
-        { PowerUpType::PUdoubleBar,         0.005       },
+        { PowerUpType::PUdoubleBar,         0.001       },
         { PowerUpType::PUdoublePoints,      0.001       },
-        { PowerUpType::PUenhancedSpeed,     0.005       },
+        { PowerUpType::PUenhancedSpeed,     0.002       },
         { PowerUpType::PUmagnetBar,         0.0001      },
         { PowerUpType::PUdaBomb,            0.5         },
         { PowerUpType::PUdaBlessing,        0.000001    },
-        { PowerUpType::PUantiMagnetBar,     0.05        }   
+        { PowerUpType::PUantiMagnetBar,     0.08        },
+        { PowerUpType::PUbid,               0.08        },
+        { PowerUpType::PUcid,               0.08        },
+        { PowerUpType::PUhalfPoints,        0.08        },
+        { PowerUpType::PUhalfSpeed,         0.08        },
     };
 
     void update_score(int num, float multiplier) {
@@ -237,13 +257,13 @@ public:
         for (auto& [type, rate] : spawnTable) {
             double p = rate * fElapsedTime;
 
-            if ((rand() / (double)RAND_MAX) < p) {
-                if (powerups.size() < 10) powerups.push_back(FallableFactory::create_powerup(type));
+            if (randomNumGenerator(true, 2, 3) < p) {
+                if (powerups.size() < 12) powerups.push_back(FallableFactory::create_powerup(type));
             }
         }
 
         bool spawnBall = false;
-        int barMid = static_cast<int>((2 * bar.fStartIdx + bar.nWidth) / 2);
+        barMid = static_cast<int>((2 * bar.fStartIdx + bar.nWidth) / 2);
         
         // Updating the balls
         for (auto it = balls.begin(); it != balls.end(); ) 
@@ -294,7 +314,7 @@ public:
                 bool hitGround = (*it)->is_collision_ground();
                 bool hitBar = (*it)->is_collision_bar(bar.fStartIdx, bar.nLevel, bar.nWidth);
 
-                if (!hitGround and !hitBar) ++it;
+                if (!hitGround && !hitBar) ++it;
                 else if (hitBar) {
                     (*it)->on_collision((*this), hitBar);
                     ++it;
@@ -361,7 +381,7 @@ std::unique_ptr<PowerUp> FallableFactory::create_powerup(PowerUpType type) {
             );
         case PowerUpType::PUdaBomb:
             return std::make_unique<PowerUp>(5, 0x2764, 1,
-                [](GameManager& game) { game.nScore -= 5; },
+                [](GameManager& game) { if (game.nScore >= 50) game.nScore -= 50; else game.nScore = 0; },
                 nullptr
             );
         case PowerUpType::PUdaBlessing:
@@ -373,6 +393,28 @@ std::unique_ptr<PowerUp> FallableFactory::create_powerup(PowerUpType type) {
             return std::make_unique<PowerUp>(12, 0x2624, 7,
                 [](GameManager& game) { game.magnetic = true; game.antimagnetic = true; },
                 [](GameManager& game) { game.magnetic = false; game.antimagnetic = false; }
+            );
+        case PowerUpType::PUbid:
+            return std::make_unique<PUinDisguise>(6, 0x2764, 1,
+                [](GameManager& game) { game.nScore += 20; },
+                nullptr,
+                0x2623
+            );
+        case PowerUpType::PUcid:
+            return std::make_unique<PUinDisguise>(13, 0x2623, 1,
+                [](GameManager& game) { if (game.nScore >= 55) game.nScore -= 55; else game.nScore = 0; },
+                nullptr,
+                0x2764
+            );
+        case PowerUpType::PUhalfPoints:
+            return std::make_unique<PowerUp>(12, 0x00F7, 8,
+                [](GameManager& game) { game.nScoreMultiplier /= 2; },
+                [](GameManager& game) { game.nScoreMultiplier *= 2; }
+            );
+        case PowerUpType::PUhalfSpeed:
+            return std::make_unique<PowerUp>(12, 0x2190, 7,
+                [](GameManager& game) { game.bar.nSpeed /= 2; },
+                [](GameManager& game) { game.bar.nSpeed *= 2; }
             );
         default:
             return nullptr; 
@@ -392,7 +434,6 @@ int main()
 
     GameManager game;
     game.balls.push_back(FallableFactory::create_ball());
-    //auto ball = Ball(0x0A20, 10); // Solid ball = 0x2B24
 
     while (1) 
     {
@@ -408,7 +449,19 @@ int main()
         game.update(fElapsedTime);
         game.draw(screen, nScreenWidth);
         std::chrono::duration<float> gameDuration = tp1 - startTime;
-        swprintf_s(&screen[0], 30, L"Score = %d, Time = %d", game.nScore, static_cast<int>(gameDuration.count()));
+        
+        // Render basic stats like score and total elapsed time
+        std::wstring stats = std::format(
+            L"Score = {}, Time = {}",
+            game.nScore, static_cast<int>(gameDuration.count())
+        );
+        for (size_t i = 0; i < stats.size(); i++)
+            screen[i] = stats[i];
+
+        // Render the score beneath the bar at all times
+        std::wstring score = std::format(L"{}", game.nScore);
+        for (size_t i = 0; i < score.size(); i++)
+            screen[(game.bar.nLevel + 1) * (nScreenWidth) + game.barMid - static_cast<int>(score.size() / 2) + i] = score[i];
 
         WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0, 0 }, &dwBytesWritten);
     }
