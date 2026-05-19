@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include "utils.h"
+#include <cmath>
 
 template <typename T>
 class Matrix {
@@ -89,6 +90,15 @@ public:
 		}
 	}
 
+	Matrix<T> operator-() const {
+		Matrix<T> result(this->cols, this->rows);
+		for (int c = 0; c < result.cols; c++) {
+			for (int r = 0; r < result.rows; r++) {
+				result(r, c) = (*this)(c, r);
+			}
+		}
+		return result;
+	}
 };
 
 template <typename T>
@@ -97,6 +107,20 @@ void printMatrix(const Matrix<T>& mat) {
 	for (int i = 0; i < mat.rows; i++) {
 		for (int j = 0; j < mat.cols; j++) {
 			std::cout << mat(i, j) << "  ";
+		}
+		std::cout << std::endl;
+	}
+}
+
+template <typename T>
+void printMatrixAdv(const Matrix<T>& mat) {
+	auto biggest_num = std::max(mat.rix.begin(), mat.rix.end());
+	auto max_digits = no_of_digits(biggest_num);
+
+	for (int i = 0; i < mat.rows; i++) {
+		for (int j = 0; j < mat.cols; j++) {
+			auto cur = mat(i, j);
+			std::cout << cur << std::string(" ", max_digits - no_of_digits(cur)) << " ";
 		}
 		std::cout << std::endl;
 	}
