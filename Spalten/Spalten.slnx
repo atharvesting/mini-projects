@@ -4,4 +4,5 @@
     <Platform Name="x86" />
   </Configurations>
   <Project Path="Spalten.vcxproj" Id="b09ee9f4-2436-4cf1-ae60-2b2305bcbac5" />
+  <Project Path="Spalten_Testing/Spalten_Testing.vcxproj" Id="6b5152c9-ea84-4204-8eac-9a62660744ad" />
 </Solution>

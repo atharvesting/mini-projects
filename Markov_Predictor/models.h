@@ -20,7 +20,6 @@ inline vector<string> stringToArray(string& s)
 	return words;
 }
 
-
 using MapResult = variant<
 	map<string, map<string, int>>,
 	map<vector<string>, map<string, int>>

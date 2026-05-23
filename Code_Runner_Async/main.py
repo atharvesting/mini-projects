@@ -1,5 +1,6 @@
 import subprocess
 import os
+import config
 
 """
 subprocess.run('ls -l', shell=True)                                         Uses shell
@@ -24,5 +25,28 @@ print(g.stdout)
 
 """
 
-print(dir(os.path))
+src_filename = "test.cpp"
+exe_filename = "output.exe"
+compiler = config.COMPILER_PATH
+
+full_src_path = os.path.join(os.getcwd(), src_filename)
+full_exe_path = os.path.join(os.getcwd(), exe_filename)
+
+# current_path = subprocess.run(['pwd'], shell=True, capture_output=True, text=True)
+# subprocess.run(['cd', current_path.stdout], shell=True)
+# subprocess.run(['ls'])
+
+if os.path.exists(full_exe_path):
+    subprocess.run(['rm', full_exe_path])
+
+a = subprocess.run([compiler, full_src_path, '-o', full_exe_path], capture_output=True, text=True)
+# print(a.returncode)
+# print(a.stdout)
+# print(a.stderr)
+
+b = subprocess.run(['output.exe'], capture_output=True, text=True)
+
+print("Return code:", b.returncode)
+print("Output:\n", b.stdout)
+print("Errors:", b.stderr)
 

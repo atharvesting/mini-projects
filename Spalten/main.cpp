@@ -4,23 +4,25 @@
 
 int main() {
 
-	//Matrix<int> m(1, 5), b(5, 1);
+	Matrix<int> m(4, 4);
 
-	//m.fill_random(1, 20);
-	//printMatrix(m);
+	m.fill_random(1, 9);
+	printMatrix(m);
 
-	//b.fill_random(1, 20);
-	//printMatrix(b);
+	auto b = adj(m);
+	printMatrix(b);
 
-	//auto c = m - b;
+	auto i = inv(m);
+	printMatrix(i);
+
+	//std::cout << std::endl << adj(m) << std::endl;
+
+	//auto c = submatrix(m, 0, 1);
 	//printMatrix(c);
-
-	//auto d = -b;
-	//printMatrixAdv(d);
-
-	std::cout << no_of_digits(15768459.1) << std::endl;
-	std::cout << 0 - 0.1 << std::endl;
 
 	return 0;
 
 }
+
+//b.fill_random(1, 20);
+	//printMatrix(b);

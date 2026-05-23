@@ -4,6 +4,8 @@
 #include <algorithm>
 #include "utils.h"
 #include <cmath>
+#include <iomanip>
+
 
 template <typename T>
 class Matrix {
@@ -13,11 +15,16 @@ public:
 	std::vector<T> rix;
 
 	Matrix(int my_dim_r, int my_dim_c)
-		: rows(my_dim_r), cols(my_dim_c), rix(my_dim_r * my_dim_c, 0) 
+		: rows(my_dim_r), cols(my_dim_c), rix(my_dim_r * my_dim_c, 0)
 	{
 		if (my_dim_r < 0 or my_dim_c < 0) {
 			throw std::invalid_argument("Matrix dimensions must be non-negative.");
 		}
+	}
+
+	int is_square() {
+		if (this->rows == this->cols) return this->rows;
+		return 0;
 	}
 
 	void fill_zeros() {
@@ -85,8 +92,8 @@ public:
 	}
 
 	void copy(Matrix<T>& other) {
-		if (rix.size() == other.rix.size()) {
-			rix = other.rix;
+		if (this->rix.size() == other.rix.size()) {
+			this->rix = other.rix;
 		}
 	}
 
@@ -99,6 +106,14 @@ public:
 		}
 		return result;
 	}
+
+	Matrix<double> operator*(const double n) const {
+		Matrix<double> result(this->rows, this->cols);
+		for (size_t i = 0; i < this->rix.size(); i++) {
+			result.rix[i] = n * this->rix[i];
+		}
+		return result;
+	}
 };
 
 template <typename T>
@@ -106,21 +121,84 @@ void printMatrix(const Matrix<T>& mat) {
 	std::cout << std::endl << mat.rows << "x" << mat.cols << std::endl;
 	for (int i = 0; i < mat.rows; i++) {
 		for (int j = 0; j < mat.cols; j++) {
-			std::cout << mat(i, j) << "  ";
+			std::cout << std::fixed << std::setprecision(2) << mat(i, j) << "  ";
 		}
 		std::cout << std::endl;
 	}
 }
 
 template <typename T>
+Matrix<T> submatrix(const Matrix<T>& mat, int exclude_row, int exclude_col) {
+	Matrix<T> result(mat.rows - 1, mat.cols - 1);
+	std::vector<T> temp;
+	temp.reserve((mat.rows - 1) * (mat.cols - 1));
+
+	for (int i = 0; i < mat.rows; i++) {
+		if (i == exclude_row) continue;
+
+		for (int j = 0; j < mat.cols; j++) {
+			if (j == exclude_col) continue;
+
+			temp.push_back(mat(i, j));
+		}
+	}
+	result.rix = std::move(temp);
+	return result;
+}
+
+template <typename T>
+int det(Matrix<T>& mat) {
+	if (mat.is_square() == 0) throw std::invalid_argument("Matrix must be a square matrix.");
+
+	if (mat.rows == 2) return mat(0,0) * mat(1,1) - mat(1,0) * mat(0,1);
+	int result = 0;
+	Matrix<T> tmp(mat.rows - 1, mat.cols - 1);
+
+	for (int i = 0; i < mat.cols; i++) 
+	{
+		tmp = submatrix(mat, 0, i);
+		result += det(tmp) * (std::pow(-1, i) * mat.rix[i]);
+	}
+	return result;
+}
+
+template <typename T>
+Matrix<T> adj(Matrix<T>& mat) {
+	if (mat.is_square() == 0) throw std::invalid_argument("Matrix must be a square matrix.");
+
+	Matrix<T> result(mat.rows, mat.cols);
+
+	if (mat.rows == 2) {
+		result(0, 0) = mat(1, 1); result(0, 1) = -mat(0, 1);
+		result(1, 0) = -mat(1, 0); result(1, 1) = mat(0, 0);
+		return result;
+	}
+
+	for (int i = 0; i < mat.rows; i++) {
+		for (int j = 0; j < mat.cols; j++) {
+			auto sub = submatrix(mat, i, j);
+			result(i, j) = det(sub) * std::pow(-1, i + j);
+		}
+	}
+	return -result;
+}
+
+template <typename T>
+Matrix<double> inv(Matrix<T>& mat) {
+	if (mat.is_square() == 0) throw std::invalid_argument("Matrix must be a square matrix.");
+
+	return adj(mat) * (static_cast<double>(1) / det(mat));
+}
+
+template <Streamable T>
 void printMatrixAdv(const Matrix<T>& mat) {
-	auto biggest_num = std::max(mat.rix.begin(), mat.rix.end());
-	auto max_digits = no_of_digits(biggest_num);
+	auto biggest_num = std::max_element(mat.rix.begin(), mat.rix.end());
+	auto max_digits = width_of(biggest_num);
 
 	for (int i = 0; i < mat.rows; i++) {
 		for (int j = 0; j < mat.cols; j++) {
 			auto cur = mat(i, j);
-			std::cout << cur << std::string(" ", max_digits - no_of_digits(cur)) << " ";
+			std::cout << cur << std::string(static_cast<size_t>(max_digits - width_of(cur)), ' ') << " ";
 		}
 		std::cout << std::endl;
 	}
