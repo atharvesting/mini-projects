@@ -1,0 +1,8 @@
+- async
+- process management (concurrency)
+- stdout/stderr handling / output capture
+- timeouts
+- orchestration
+- tool use
+- reasoning loop
+- state management
