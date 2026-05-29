@@ -268,6 +268,11 @@ int rank(Matrix<T>& mat) {
 	
 }
 
+template <typename T>
+bool is_lin_independent(const Matrix<T>& mat) {
+	return det(m);
+}
+
 template <Streamable T>
 void printMatrixAdv(const Matrix<T>& mat) {
 	auto biggest_num = std::max_element(mat.rix.begin(), mat.rix.end());

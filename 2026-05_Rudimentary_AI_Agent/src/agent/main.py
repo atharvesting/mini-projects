@@ -1,5 +1,9 @@
+from agent.core import runner
+
 def main():
-    print("Hello from 2026-05-rudimentary-ai-agent!")
+    agint = runner.Agent()
+    response = agint.ask_agent("Hello agint, are you alive? do you get the word play done with 'Agint'?")
+    print(response)
 
 
 if __name__ == "__main__":

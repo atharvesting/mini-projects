@@ -1,4 +1,4 @@
 # Ignore Jupyter Notebooks in the language statistics bar
 *.ipynb linguist-documentation=true
 
-Hack_A_Known/** linguist-detectable=false
+2026-03_VIBE_Hack_A_Known/** linguist-detectable=false
