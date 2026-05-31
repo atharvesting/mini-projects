@@ -1,3 +1,4 @@
 misc
 .venv
 scratchpad.md
+*.egg-info/
