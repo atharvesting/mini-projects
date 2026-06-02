@@ -4,15 +4,19 @@ from agent.llm.client import Client
 
 class Agent:
     
-    def __init__(self):
+    def __init__(self, system_prompt: str):
         
         self.model = config.OLLAMA_MODEL
         self.client = Client(self.model, config.OLLAMA_API_URL)
-        self.system_message = prompts.SYS_PROMPT1
-        self.messages = []
+        self.messages = [{"role": "system", "content": system_prompt}]
         
     def ask_agent(self, prompt:str) -> str | None:
-        response = self.client.generate(prompt)
-        if response is not None: 
-            return response.response
+        
+        self.messages.append({"role": "user", "content": prompt})
+        response = self.client.generate(self.messages)
+        
+        if response is not None:
+            self.messages.append(response.message)
+            return response.message["content"]
+        
         return None

@@ -2,9 +2,10 @@ from agent.core import runner
 
 def main():
     agint = runner.Agent()
-    response = agint.ask_agent("Hello agint, are you alive? do you get the word play done with 'Agint'?")
+    print(agint.ask_agent("Give me three ways to turn my mood around."))
+    print()
+    response = agint.ask_agent("What was your second point?")
     print(response)
-
 
 if __name__ == "__main__":
     main()

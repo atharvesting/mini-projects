@@ -36,6 +36,5 @@ The idea is simple: show MPU readings on the OLED screen, and when the MPU is tu
         Wire.requestFrom(MPU_ADDR, 1);
         uint8_t reg = Wire.read();
         ```
-- In order to manipulate specific bits inside bytes in the register map, bit masking is used to isolate the target bits, 
-clear them and then update them accordingly.
+- In order to manipulate specific bits inside bytes in the register map, bit masking is used to isolate the target bits, clear them and then update them accordingly.
 
