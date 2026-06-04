@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -8,6 +7,164 @@
 #include <iomanip>
 #include <unordered_map>
 #include <set>
+#include <numeric>
+#include <execution>
+#include <functional>
+
+template <typename T>
+class Vector {
+public:
+	std::vector<T> vec;
+	float mag;
+	int dim;
+
+	Vector(std::vector<T> rray)
+		: vec(rray), mag(magnitude(vec)), dim(vec.size()) {
+	}
+
+	Vector(std::vector<T>&& rray) 
+		: vec(std::move(rray)), mag(magnitude(vec)), dim(vec.size()) {}
+
+	Vector(int dim)
+		: dim(dim), mag(0.0f), vec(dim, T{ 0 }) { }
+
+	using iterator = std::vector<T>::iterator;
+	using const_iterator = std::vector<T>::const_iterator;
+
+	iterator begin() { return vec.begin(); }
+	iterator end() { return vec.end(); }
+
+	const_iterator begin() const { return vec.begin(); }
+	const_iterator end() const { return vec.end(); }
+
+	static float magnitude(const std::vector<T>& arr) {
+		auto square_sum = std::reduce(std::execution::par_unseq,
+			arr.begin(),
+			arr.end(),
+			T{ 0 },
+			[](T total, T num) { return total + num * num; }
+		);
+		return static_cast<float>(std::sqrt(square_sum));
+	}
+
+	static float magnitude(const Vector<T>& vector) {
+		return magnitude(vector.vec);
+	}
+
+	bool dims_match(const Vector& other) const {
+		return this->dim == other.dim;
+	}
+
+	const T operator()(size_t idx) const {
+		return vec[idx];
+	}
+
+	T operator()(size_t idx) {
+		return vec[idx];
+	}
+
+	Vector<T> element_wise(const Vector& other, std::function<T(T, T)> func) const {
+		if (!dims_match(other)) throw std::invalid_argument("Vector dimensions must match.");
+		Vector<T> result(this->dim);
+		std::transform(vec.begin(), vec.end(), other.begin(), result.begin(), func);
+		return result;
+	}
+
+	Vector<T> operator+(const Vector& other) const {
+		return element_wise(other, std::plus<T>());
+	}
+
+	Vector<T> operator-(const Vector& other) const {
+		return element_wise(other, std::minus<T>());
+	}
+
+	T operator*(const Vector& other) const {
+		if (!dims_match(other)) throw std::invalid_argument("Vector dimensions must match.");
+		return std::inner_product(vec.begin(), vec.end(), other.begin(), 0);
+	}
+
+	Vector<T> operator*(const float scalar) const {
+		Vector<T> result(this->dim);
+		std::transform(std::execution::par,
+			vec.begin(),
+			vec.end(),
+			result.begin(), [scalar](T val) { return val * scalar; }
+		);
+		return result;
+	}
+
+	template <typename U>
+	Vector<float> operator/(U scalar) const {
+		if (scalar == 0) throw std::invalid_argument("Divisor must not be Zero.");
+		Vector<float> result(this->dim);
+		std::transform(std::execution::par, 
+			vec.begin(), 
+			vec.end(), 
+			result.begin(), 
+			[scalar](T val) { 
+				return static_cast<float>(val) / static_cast<float>(scalar); 
+			}
+		);
+		return result;
+	}
+
+	Vector<float> normalize() const {
+		if (magnitude((*this)) == 0) throw std::invalid_argument("Cannot normalize a Zero-Vector.");
+		return (*this) / magnitude(*this);
+	}
+
+	float scalar_proj_on(const Vector& other) {
+		return (*this * other) / magnitude(other);
+	}
+
+	Vector<float> vector_proj_on(const Vector& other) {
+		return other.normalize() * scalar_proj_on(other);
+	}
+
+	float angle_between(const Vector& other) {
+		return std::acos(((*this) * other) / (magnitude(*this) * magnitude(other)));
+	}
+
+	float cosine_similarity(const Vector& other) {
+		return ((*this) * other) / (magnitude(*this) * magnitude(other));
+	}
+
+	Vector<float> to_float() const {
+		std::vector<float> converted(vec.begin(), vec.end());
+		return Vector<float>(std::move(converted));
+	}
+
+	template <typename... Args>
+	static std::vector<Vector<float>> gram_schmidt(Args&&... args) 
+	{
+		std::vector<Vector<T>> input_vectors{ std::forward<Args>(args)... };
+		std::vector<Vector<float>> ortho_basis;
+		if (input_vectors.empty()) return ortho_basis;
+
+		ortho_basis.push_back(input_vectors[0].normalize());
+
+		for (size_t i = 1; i < input_vectors.size(); i++) 
+		{
+			Vector<float> v = input_vectors[i].to_float();
+			for (const auto& basis: ortho_basis) 
+			{
+				Vector<float> projection = input_vectors[i].to_float().vector_proj_on(basis);
+				v = v - projection;
+			}
+			ortho_basis.push_back(v.normalize());
+		}
+		return ortho_basis;
+	}
+};
+
+template <typename T>
+void printVec(const Vector<T> vector) {
+	for (size_t i = 0; i < vector.dim; i++) {
+		std::cout << vector(i) << "\n";
+	}
+	std::cout << std::endl;
+}
+
 
 template <typename T>
 class Matrix {
@@ -26,6 +183,13 @@ public:
 
 	Matrix(size_t r, size_t c, const T& fill)
 		: rows(r), cols(c), rix(r* c, fill) {
+	}
+
+	Matrix(size_t r, size_t c, std::vector<T>&& nums)
+		: rows(std::move(r)), cols(std::move(c)) {
+		if (nums.size == rows * cols) {
+			rix = std::move(nums);
+		}
 	}
 
 	// compiler confuses this constructor with the first one
@@ -251,7 +415,6 @@ Matrix<double> inv(Matrix<T>& mat) {
 }
 
 template <typename T>
-
 std::unordered_map<int, std::vector<int>> exclusions_for_square(Matrix<T>& mat) {
 	if (mat.is_square())
 		return NULL;
@@ -264,7 +427,24 @@ std::unordered_map<int, std::vector<int>> exclusions_for_square(Matrix<T>& mat) 
 }
 
 template <typename T>
-int rank(Matrix<T>& mat) {
+std::vector<Vector<T>> mat_to_vec(const Matrix<T>& mat) {
+	std::vector<T> tmp;
+	std::vector<Vector<T>> result;
+
+	for (size_t col = 0; col < mat.cols; i++) 
+	{
+		for (size_t row = 0; row < mat.rows; j++) 
+		{
+			tmp.push_back(mat(row, col));
+		}
+		result.push_back(Vector<T>(tmp));
+		tmp.clear();
+	}
+	return result;
+}
+
+template <typename T>
+int gram_schmidt(Matrix<T>& mat) {
 
 }
 
@@ -272,17 +452,3 @@ template <typename T>
 bool is_lin_independent(const Matrix<T>& mat) {
 	return det(mat);
 }
-
-//template <Streamable T>
-//void printMatrixAdv(const Matrix<T>& mat) {
-//	auto biggest_num = std::max_element(mat.rix.begin(), mat.rix.end());
-//	auto max_digits = width_of(biggest_num);
-//
-//	for (int i = 0; i < mat.rows; i++) {
-//		for (int j = 0; j < mat.cols; j++) {
-//			auto cur = mat(i, j);
-//			std::cout << cur << std::string(static_cast<size_t>(max_digits - width_of(cur)), ' ') << " ";
-//		}
-//		std::cout << std::endl;
-//	}
-//}

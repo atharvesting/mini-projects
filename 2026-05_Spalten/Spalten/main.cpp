@@ -4,18 +4,19 @@
 #include <iostream>
 
 int main() {
-    Matrix<int> m(2, 4);
-    m.fill_random_int(1, 9);
-    printMatrix(m);
 
-    std::set<int> rows{};
-    std::set<int> cols{ 1, 3 };
+    Vector<int> v1(std::vector<int>{ 1,0,0 });
+    Vector<int> v2(std::vector<int>{ 0,1,0});
+    Vector<int> v3(std::vector<int>{ 0,0,1 });
 
-    auto b = submatrix(m, rows, cols);
-    printMatrix(b);
+    Matrix<int> m1(3, 3, std::vector<int>{1, 0, 0, 0, 1, 0, 0, 0, 1});
+    printMatrix(m1);
+    
+    auto Vs = mat_to_vec(m1);
 
-    //auto c = submatrix(m, 0, 1);
-    //printMatrix(c);
+    for (const auto& vec : Vs) {
+        printVec(vec);
+    }
 
     return 0;
 
