@@ -10,6 +10,7 @@
 #include <numeric>
 #include <execution>
 #include <functional>
+#include <utility>
 
 template <typename T>
 class Vector {
@@ -18,9 +19,8 @@ public:
 	float mag;
 	int dim;
 
-	Vector(std::vector<T> rray)
-		: vec(rray), mag(magnitude(vec)), dim(vec.size()) {
-	}
+	Vector(const std::vector<T>& rray)
+		: vec(rray), mag(magnitude(vec)), dim(vec.size()) {}
 
 	Vector(std::vector<T>&& rray) 
 		: vec(std::move(rray)), mag(magnitude(vec)), dim(vec.size()) {}
@@ -134,6 +134,26 @@ public:
 		return Vector<float>(std::move(converted));
 	}
 
+	static std::vector<Vector<float>> gram_schmidt(std::vector<Vector<T>>& input_vectors)
+	{
+		std::vector<Vector<float>> ortho_basis;
+		if (input_vectors.empty()) return ortho_basis;
+
+		ortho_basis.push_back(input_vectors[0].normalize());
+
+		for (size_t i = 1; i < input_vectors.size(); i++)
+		{
+			Vector<float> v = input_vectors[i].to_float();
+			for (const auto& basis : ortho_basis)
+			{
+				Vector<float> projection = input_vectors[i].to_float().vector_proj_on(basis);
+				v = v - projection;
+			}
+			ortho_basis.push_back(v.normalize());
+		}
+		return ortho_basis;
+	}
+
 	template <typename... Args>
 	static std::vector<Vector<float>> gram_schmidt(Args&&... args) 
 	{
@@ -187,7 +207,7 @@ public:
 
 	Matrix(size_t r, size_t c, std::vector<T>&& nums)
 		: rows(std::move(r)), cols(std::move(c)) {
-		if (nums.size == rows * cols) {
+		if (nums.size() == rows * cols) {
 			rix = std::move(nums);
 		}
 	}
@@ -269,7 +289,8 @@ public:
 		}
 	}
 
-	Matrix<T> operator*(const Matrix<T>& other) const {
+	template <typename U>
+	Matrix<T> operator*(const Matrix<U>& other) const {
 		if (this->cols == other.rows) {
 			Matrix<T> result(this->rows, other.cols);
 			for (int i = 0; i < this->rows; i++) {
@@ -316,7 +337,7 @@ void printMatrix(const Matrix<T>& mat) {
 	std::cout << std::endl << mat.rows << "x" << mat.cols << std::endl;
 	for (int i = 0; i < mat.rows; i++) {
 		for (int j = 0; j < mat.cols; j++) {
-			std::cout << std::fixed << std::setprecision(2) << mat(i, j) << "  ";
+			std::cout << std::fixed << std::setprecision(4) << mat(i, j) << "  ";
 		}
 		std::cout << std::endl;
 	}
@@ -330,44 +351,6 @@ int trace(Matrix<T>& mat) {
 		total += mat(i, i);
 	}
 	return total;
-}
-
-template <typename T>
-Matrix<T> submatrix(const Matrix<T>& mat, int exclude_row, int exclude_col) {
-	Matrix<T> result(mat.rows - 1, mat.cols - 1);
-	result.rix.clear();
-
-	for (int i = 0; i < mat.rows; i++) {
-		if (i == exclude_row) continue;
-
-		for (int j = 0; j < mat.cols; j++) {
-			if (j == exclude_col) continue;
-
-			result.rix.push_back(mat(i, j));
-		}
-	}
-	return result;
-}
-
-template <typename T>
-Matrix<T> submatrix(const Matrix<T>& mat, std::set<int> exclude_rows, std::set<int> exclude_cols) {
-
-	if (exclude_rows.size() > mat.rows || exclude_cols.size() > mat.cols)
-		throw std::invalid_argument("Exclusion set size exceeded matrix dimensions.");
-
-	Matrix<T> result(mat.rows - exclude_rows.size(), mat.cols - exclude_cols.size());
-	result.rix.clear();
-
-	for (int i = 0; i < mat.rows; i++) {
-		if (exclude_rows.find(i) != exclude_rows.end()) continue;
-
-		for (int j = 0; j < mat.cols; j++) {
-			if (exclude_cols.find(j) != exclude_cols.end()) continue;
-
-			result.rix.push_back(mat(i, j));
-		}
-	}
-	return result;
 }
 
 template <typename T>
@@ -415,25 +398,13 @@ Matrix<double> inv(Matrix<T>& mat) {
 }
 
 template <typename T>
-std::unordered_map<int, std::vector<int>> exclusions_for_square(Matrix<T>& mat) {
-	if (mat.is_square())
-		return NULL;
-	else if (mat.rows > mat.cols)
-		return std::pair(mat.rows - mat.cols, 0);
-	else
-		return std::pair(0, mat.cols - mat.rows);
-
-	//int max_square_dim = mat.rows > mat.cols ? mat.cols : mat.rows;
-}
-
-template <typename T>
-std::vector<Vector<T>> mat_to_vec(const Matrix<T>& mat) {
+std::vector<Vector<T>> mat_to_vecs(const Matrix<T>& mat) {
 	std::vector<T> tmp;
 	std::vector<Vector<T>> result;
 
-	for (size_t col = 0; col < mat.cols; i++) 
+	for (size_t col = 0; col < mat.cols; col++) 
 	{
-		for (size_t row = 0; row < mat.rows; j++) 
+		for (size_t row = 0; row < mat.rows; row++) 
 		{
 			tmp.push_back(mat(row, col));
 		}
@@ -444,11 +415,94 @@ std::vector<Vector<T>> mat_to_vec(const Matrix<T>& mat) {
 }
 
 template <typename T>
-int gram_schmidt(Matrix<T>& mat) {
+Matrix<T> vecs_to_mat(std::vector<Vector<T>> vecs) {
+	std::vector<T> combined;
+	auto dim = vecs[0].dim;
+	auto cols = dim;
+	auto rows = vecs.size();
 
+	for (const auto& vec : vecs) {
+		if (vec.dim != dim)
+			throw std::invalid_argument("All vectors must have the same size.");
+		
+		combined.append_range(vec);
+	}
+
+	Matrix<T> result(rows, cols, std::move(combined));
+	return -result;
+}
+
+template <typename T>
+Matrix<float> gram_schmidt_mat(const Matrix<T>& mat) {
+	std::vector<Vector<T>> vees = mat_to_vecs(mat);
+	auto ortho_basis = Vector<T>::gram_schmidt(vees);
+	return vecs_to_mat(ortho_basis);
+}
+
+template <typename T>
+std::pair<Matrix<float>, Matrix<float>> qr_decomp(const Matrix<T>& A) {
+	auto Q = gram_schmidt_mat(A);
+	auto R = (-Q) * A;
+	for (size_t row = 0; row < R.rows; row++)
+		for (size_t col = 0; col < R.cols; col++)
+			if (col < row)
+				R(row, col) = 0;
+
+	std::pair<Matrix<float>, Matrix<float>> qr(Q, R);
+	return qr;
 }
 
 template <typename T>
 bool is_lin_independent(const Matrix<T>& mat) {
 	return det(mat);
+}
+
+template <typename T>
+Matrix<T> submatrix(const Matrix<T>& mat, int exclude_row, int exclude_col) {
+	Matrix<T> result(mat.rows - 1, mat.cols - 1);
+	result.rix.clear();
+
+	for (int i = 0; i < mat.rows; i++) {
+		if (i == exclude_row) continue;
+
+		for (int j = 0; j < mat.cols; j++) {
+			if (j == exclude_col) continue;
+
+			result.rix.push_back(mat(i, j));
+		}
+	}
+	return result;
+}
+
+template <typename T>
+Matrix<T> submatrix(const Matrix<T>& mat, std::set<int> exclude_rows, std::set<int> exclude_cols) {
+
+	if (exclude_rows.size() > mat.rows || exclude_cols.size() > mat.cols)
+		throw std::invalid_argument("Exclusion set size exceeded matrix dimensions.");
+
+	Matrix<T> result(mat.rows - exclude_rows.size(), mat.cols - exclude_cols.size());
+	result.rix.clear();
+
+	for (int i = 0; i < mat.rows; i++) {
+		if (exclude_rows.find(i) != exclude_rows.end()) continue;
+
+		for (int j = 0; j < mat.cols; j++) {
+			if (exclude_cols.find(j) != exclude_cols.end()) continue;
+
+			result.rix.push_back(mat(i, j));
+		}
+	}
+	return result;
+}
+
+template <typename T>
+std::unordered_map<int, std::vector<int>> exclusions_for_square(Matrix<T>& mat) {
+	if (mat.is_square())
+		return NULL;
+	else if (mat.rows > mat.cols)
+		return std::pair(mat.rows - mat.cols, 0);
+	else
+		return std::pair(0, mat.cols - mat.rows);
+
+	//int max_square_dim = mat.rows > mat.cols ? mat.cols : mat.rows;
 }

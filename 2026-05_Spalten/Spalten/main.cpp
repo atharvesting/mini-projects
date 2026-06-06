@@ -2,6 +2,7 @@
 #include "matrix.h"
 #include "utils.h"
 #include <iostream>
+#include <vector>
 
 int main() {
 
@@ -9,14 +10,12 @@ int main() {
     Vector<int> v2(std::vector<int>{ 0,1,0});
     Vector<int> v3(std::vector<int>{ 0,0,1 });
 
-    Matrix<int> m1(3, 3, std::vector<int>{1, 0, 0, 0, 1, 0, 0, 0, 1});
+    Matrix<int> m1(3, 3, std::vector<int>{12, -51, 4, 2, 167, -68, -4, 24, -41});
     printMatrix(m1);
-    
-    auto Vs = mat_to_vec(m1);
 
-    for (const auto& vec : Vs) {
-        printVec(vec);
-    }
+    auto qr = qr_decomp(m1);
+    printMatrix(qr.first);
+    printMatrix(qr.second);
 
     return 0;
 
