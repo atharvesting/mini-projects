@@ -4,8 +4,10 @@ from typing import Any
 from time import sleep
 
 class ChatResponse(BaseModel):
-    message: dict[str, str]
-    done: bool
+    response: str
+    tool_use: bool
+    action: str | None
+    action_input: dict | None
 
 class Client:
     
@@ -22,16 +24,18 @@ class Client:
                 "num_ctx": 2048,
                 "num_gpu": 99,
                 "low_vram": True,
-                "temperature": 0.1
+                "temperature": 0.0
             },
-            "messages": messages,
+            "prompt": str(messages),
+            "think": True,
+            "format": ChatResponse.model_json_schema(),
             "keep_alive": "10m"
         }
     
     def generate(self, 
                  messages: list[dict[str, str]] = [], 
                  retries: int = 3
-        ) -> ChatResponse | None:
+        ) -> tuple[ChatResponse, str] | None:
         
         payload = self.payload(messages)
         for _ in range(retries):
@@ -39,30 +43,26 @@ class Client:
             try:
                 r = self.session.post(self.base_url, json=payload, timeout=300)
                 r.raise_for_status()
-                return ChatResponse(**(r.json()))
+
+                response_data = r.json()
+                llm_string = response_data.get("response", "")
+                thinking_string = response_data.get("thinking", "")
+
+                validated_llm_string = ChatResponse.model_validate_json(llm_string)
+                return validated_llm_string, thinking_string
             
             except ValidationError as e:
                 print(e)
                 print(r.text)
                 sleep(1)
                 continue
-            except requests.exceptions.JSONDecodeError as e:
+            except (requests.exceptions.JSONDecodeError,
+                    requests.exceptions.HTTPError,
+                    requests.exceptions.ConnectTimeout,
+                    requests.exceptions.InvalidSchema) as e:
                 print(type(e), e)
                 sleep(1)
                 continue
-            except requests.exceptions.HTTPError as e:
-                print(type(e), e)
-                sleep(1)
-                continue
-            except requests.exceptions.ConnectTimeout as e:
-                print(type(e), e)
-                sleep(1)
-                continue
-            except requests.exceptions.InvalidSchema as e:
-                print(type(e), e)
-                sleep(1)
-                continue
-            
         return None
             
     

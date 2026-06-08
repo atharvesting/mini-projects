@@ -1,11 +1,17 @@
 from agent.core import runner
+from agent.llm import client
+from agent.prompts import SYS_PROMPT2, TOOL_GUIDE
+from agent.tools.calculator import Calculator
 
 def main():
-    agint = runner.Agent()
-    print(agint.ask_agent("Give me three ways to turn my mood around."))
-    print()
-    response = agint.ask_agent("What was your second point?")
-    print(response)
+
+    agint = runner.Agent(SYS_PROMPT2 + TOOL_GUIDE)
+
+    while True:
+        user = input("You > ")
+        answer = agint.ask_agent(user)
+        print(f"{"Thinking":=^20}\n" + answer[1] + "\n")
+        print("Agint >", answer[0])
 
 if __name__ == "__main__":
     main()
