@@ -1,5 +1,38 @@
 #include "pch.h"
 #include "../Spalten/matrix.h"
+#include <vector>
+
+TEST(VectorTests, VectorLvalueConstructor) {
+    std::vector<int> vec1{ 3, 4, 5, 6, 7 };
+    auto v0 = Vector<int>(vec1);
+    EXPECT_EQ(v0(3), 6);
+    EXPECT_EQ(v0(4), 7);
+    EXPECT_EQ(v0.dim, 5);
+}
+
+TEST(VectorTests, VectorRvalueConstructor) {
+    Vector<int> v1(std::vector<int>{3, 4});
+    EXPECT_EQ(v1(0), 3);
+    EXPECT_EQ(v1(1), 4);
+    EXPECT_EQ(v1.dim, 2);
+
+    Vector<float> v2(std::vector<float>{0.0f});
+    EXPECT_THROW(v2(1), std::invalid_argument);
+    EXPECT_EQ(v2(0), 0);
+    EXPECT_EQ(v2.dim, 1);
+}
+TEST(VectorTests, VectorDimValueConstructor) {
+    Vector<float> v3(4);
+    EXPECT_EQ(v3.dim, 4);
+    EXPECT_EQ(v3(0), 0);
+    EXPECT_EQ(v3(3), 0);
+}
+TEST(VectorTests, MagnitudeCalculations) {
+    Vector<int> v1 = Vector<int>(std::vector<int>{3, 4});
+    EXPECT_EQ(Vector<int>::magnitude(v1.vec), 5.0f);
+    auto v2 = Vector<float>(std::vector<float>{-4, 3});
+    EXPECT_EQ(5.0f, Vector<float>::magnitude(v2.vec));
+}
 
 TEST(MatrixTests, CanFillAndAccessElements) {
     Matrix<int> mat(2, 3);
