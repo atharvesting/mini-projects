@@ -11,6 +11,8 @@
 #include <execution>
 #include <functional>
 #include <utility>
+#include <thread>
+#include <mutex>
 
 /// @brief A class representing a mathematical vector.
 /// @tparam T The datatype of the vector elements.
@@ -86,7 +88,8 @@ public:
 	/// @param idx The index of the element to retrieve.
 	/// @return The element at the specified index.
 	const T operator()(size_t idx) const {
-		if (0 > idx || idx >= this->dim) throw std::invalid_argument("Vector index out of range.");
+		if (0 > idx || idx >= this->dim) 
+			throw std::invalid_argument("Vector index out of range.");
 		return vec[idx];
 	}
 
@@ -94,7 +97,8 @@ public:
 	/// @param idx The index of the element to retrieve.
 	/// @return A mutable reference to the element at the specified index.
 	T operator()(size_t idx) {
-		if (0 > idx || idx >= this->dim) throw std::invalid_argument("Vector index out of range.");
+		if (0 > idx || idx >= this->dim) 
+			throw std::invalid_argument("Vector index out of range.");
 		return vec[idx];
 	}
 
@@ -103,7 +107,8 @@ public:
 	/// @param func The function to apply element-wise.
 	/// @return The result of the element-wise operation.
 	Vector<T> element_wise(const Vector& other, std::function<T(T, T)> func) const {
-		if (!dims_match(other)) throw std::invalid_argument("Vector dimensions must match.");
+		if (!dims_match(other)) 
+			throw std::invalid_argument("Vector dimensions must match.");
 		Vector<T> result(this->dim);
 		std::transform(vec.begin(), vec.end(), other.begin(), result.begin(), func);
 		return result;
@@ -128,7 +133,7 @@ public:
 	/// @return The dot product of the two vectors.
 	T operator*(const Vector& other) const {
 		if (!dims_match(other)) throw std::invalid_argument("Vector dimensions must match.");
-		return std::inner_product(vec.begin(), vec.end(), other.begin(), 0);
+		return std::transform_reduce(vec.begin(), vec.end(), other.begin(), 0, std::plus<T>(), std::multiplies<T>());
 	}
 
 	/// @brief Multiply this vector by a scalar.
@@ -136,7 +141,7 @@ public:
 	/// @return The result of the multiplication.
 	Vector<T> operator*(const float scalar) const {
 		Vector<T> result(this->dim);
-		std::transform(std::execution::par,
+		std::transform(std::execution::par_unseq,
 			vec.begin(),
 			vec.end(),
 			result.begin(), [scalar](T val) { return val * scalar; }
@@ -149,14 +154,14 @@ public:
 	/// @param scalar The scalar to divide by.
 	/// @return The result of the division.
 	template <typename U>
-	Vector<float> operator/(U scalar) const {
+	Vector<float> operator/(U divisor) const {
 		if (scalar == 0) throw std::invalid_argument("Divisor must not be Zero.");
 		Vector<float> result(this->dim);
-		std::transform(std::execution::par, 
+		std::transform(std::execution::par_unseq, 
 			vec.begin(), 
 			vec.end(), 
 			result.begin(), 
-			[scalar](T val) { 
+			[divisor](T val) { 
 				return static_cast<float>(val) / static_cast<float>(scalar); 
 			}
 		);
@@ -310,7 +315,8 @@ public:
 	/// @brief Check if the matrix is square.
 	/// @return The dimension of the square matrix if it is square, otherwise 0.
 	int is_square() {
-		if (this->rows == this->cols) return this->rows;
+		if (this->rows == this->cols) 
+			return this->rows;
 		return 0;
 	}
 
@@ -414,7 +420,10 @@ public:
 	/// @return A new matrix containing the product.
 	template <typename U>
 	Matrix<T> operator*(const Matrix<U>& other) const {
-		if (this->cols == other.rows) {
+		if (this->cols != other.rows)
+			throw std::invalid_argument("Column count of first and Row count of second must match for matrix multiplication.");
+
+		if (this->rows * this->cols * other.cols < 4096000) {
 			Matrix<T> result(this->rows, other.cols);
 			for (int i = 0; i < this->rows; i++) {
 				for (int j = 0; j < other.cols; j++) {
@@ -426,7 +435,31 @@ public:
 			return result;
 		}
 		else {
-			throw std::invalid_argument("Column count of first and Row count of second must match for matrix multiplication.");
+			auto thread_count = std::thread::hardware_concurrency();
+			float row_thread_ratio = this->rows / thread_count;
+			int chunks = row_thread_ratio > 4 ? static_cast<int>(row_thread_ratio) : 4;
+			Matrix<T> result(this->rows, other.cols);
+			std::vector<std::jthread> workers;
+
+			for (unsigned int t = 0; t < thread_count; t++){
+				size_t start_row = t * chunks;
+				size_t end_row = std::min(start_row + chunks, this->rows);
+
+				if (start_row < end_row) {
+					workers.emplace_back([&, start_row, end_row]() {
+						for (size_t r = start_row; r < end_row; r++) {
+							for (size_t c = 0; c < other.cols; c++) {
+								T res{};
+								for (size_t k = 0; k < this->cols; k++) {
+									res += (*this)(r, k) * other(k, c);
+								}
+								result(r, c) = res;
+							}
+						}
+						});
+				}
+			}
+			return result;
 		}
 	}
 
@@ -441,11 +474,12 @@ public:
 	/// @brief Multiply the matrix by a scalar value.
 	/// @param n The scalar value to multiply by.
 	/// @return A new matrix containing the product.
-	Matrix<float> operator*(const float n) const {
+	Matrix<float> operator*(const float scalar) const {
 		Matrix<float> result(this->rows, this->cols);
-		for (size_t i = 0; i < this->rix.size(); i++) {
-			result.rix[i] = n * this->rix[i];
-		}
+		std::transform(std::execution::par_unseq, 
+			this->rix.begin(), this->rix.end(),
+			result.rix.begin(), [scalar](T val) { return val * scalar; }
+		);
 		return result;
 	}
 
@@ -480,6 +514,10 @@ Matrix<T> zeros(size_t r, size_t c) {
 	return Matrix<T>(r, c, T{ 0 });
 }
 
+/// @brief Generate an nXn matrix filled with zeros from the appropriate datatype.
+/// @tparam T The datatype of the matrix elements
+/// @param dim The square dimension of the matrix.
+/// @return An nXn matrix filled with zeros
 template <typename T>
 Matrix<T> zeros(size_t dim) {
 	return Matrix<T>(dim, dim, T{ 0 });
@@ -503,7 +541,7 @@ template <typename T>
 Matrix<T> identity(size_t dim) {
 	Matrix<int> identity = zeros<int>(dim, dim);
 	for (int i = 0; i < dim; i++)
-		identity(i, i) = T{ 1 };
+		identity(i, i) = T{ 1 };  // wh
 	return identity;
 }
 
@@ -526,13 +564,14 @@ Matrix<float> mat_random(size_t r, size_t c) {
 /// @param start The lower bound of the random value range.
 /// @param stop The upper bound of the random value range.
 /// @return A matrix filled with random integer values.
-template <typename T>
 Matrix<int> mat_random_int_range(size_t r, size_t c, int start, int stop) {
-	if (start > stop) throw std::invalid_argument("Start must be greater than Stop");
+	if (start > stop) 
+		throw std::invalid_argument("Start must be greater than Stop");
 	Matrix<int> mat(r, c);
 	for (auto& num : mat.rix) {
 		num = static_cast<int>(generate_random(start, stop, false));
 	}
+	return mat;
 }
 
 /// @brief Calculate the trace of a square matrix, which is the sum of its diagonal elements.
@@ -595,8 +634,8 @@ Matrix<T> cofactor(Matrix<T>& mat) {
 	Matrix<T> result(mat.rows, mat.cols);
 
 	if (mat.rows == 2) {
-		result(0, 0) = mat(1, 1); result(0, 1) = -mat(0, 1);
-		result(1, 0) = -mat(1, 0); result(1, 1) = mat(0, 0);
+		result(0, 0) = mat(1, 1); result(0, 1) = -mat(1, 0);
+		result(1, 0) = -mat(0, 1); result(1, 1) = mat(0, 0);
 		return result;
 	}
 
@@ -758,4 +797,12 @@ Matrix<T> submatrix(const Matrix<T>& mat, std::set<int> exclude_rows, std::set<i
 		}
 	}
 	return result;
+}
+
+template <typename T>
+Matrix<T> fast_mult(const Matrix<T>& m1, const Matrix<T>& m2) {
+	if (m1.cols != m2.rows) 
+		throw std::invalid_argument("Matrix dimensions must be compatible for multiplication.");
+
+	
 }

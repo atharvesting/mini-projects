@@ -5,6 +5,6 @@ class MemoryModule:
     def get_messages(self):
         messages = ""
         for mesdic in self.messages:
-            messages += mesdic["role"] + ": " + mesdic["content"] + "\n"
+            messages += mesdic["role"] + ": " + str(mesdic["content"]) + "\n"
         
         return messages

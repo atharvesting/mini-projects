@@ -3,6 +3,7 @@
 #include <random>
 #include <cmath>
 #include <sstream>
+#include <chrono>
 
 double generate_random(int low, int high, bool zero2one) {
 	static std::random_device rd;
@@ -15,8 +16,48 @@ double generate_random(int low, int high, bool zero2one) {
 		std::uniform_int_distribution<> distr(low, high);
 		return distr(gen);
 	}
-
 }
+
+
+// Source: https://www.learncpp.com/cpp-tutorial/timing-your-code/
+class Timer
+{
+private:
+	// Type aliases to make accessing nested type easier
+	using Clock = std::chrono::steady_clock;
+	using Second = std::chrono::duration<double, std::ratio<1> >;
+
+	std::chrono::time_point<Clock> m_beg{ Clock::now() };
+
+public:
+	void reset()
+	{
+		m_beg = Clock::now();
+	}
+
+	double elapsed() const
+	{
+		return std::chrono::duration_cast<Second>(Clock::now() - m_beg).count();
+	}
+};
+//
+//void benchmark_multiplication(void) {
+//	Timer t, g;
+//	for (int i = 5; i < 1200; i += 25) {
+//		auto m1 = mat_random_int_range(i, i, 1, 9);
+//		auto m2 = mat_random_int_range(i, i, 1, 9);
+//		float sum_naive = 0.0f, sum_multi = 0.0f;
+//		for (int repeats = 0; repeats < 3; repeats++) {
+//			t.reset();
+//			auto slow = m1 * m2;
+//			sum_naive += t.elapsed();
+//			g.reset();
+//			//auto fast = fast_mult2(m1, m2);
+//			sum_multi += g.elapsed();
+//		}
+//		std::cout << i << "x" << i << ": Naive: " << sum_naive / 3 << ", Multi-threaded: " << sum_multi / 3 << std::endl;
+//	}
+//}
 
 //template <typename T>
 //concept Streamable =

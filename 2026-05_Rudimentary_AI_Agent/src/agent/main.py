@@ -1,17 +1,14 @@
 from agent.core import runner
-from agent.llm import client
-from agent.prompts import SYS_PROMPT2, TOOL_GUIDE
-from agent.tools.calculator import Calculator
+import agent.prompts as pmt
 
 def main():
 
-    agint = runner.Agent(SYS_PROMPT2 + TOOL_GUIDE)
+    agint = runner.Agent(pmt.BRAIN_PROMPT1, pmt.SYS_PROMPT2 + pmt.RESPONSE_FORMAT + pmt.TOOL_GUIDE)
 
     while True:
         user = input("You > ")
-        answer = agint.ask_agent(user)
-        print(f"{"Thinking":=^20}\n" + answer[1] + "\n")
-        print("Agint >", answer[0])
+        response = agint.ask_agent(user)  # This triggers a while loop until task is completed
+        print("Agint >", response)
 
 if __name__ == "__main__":
     main()

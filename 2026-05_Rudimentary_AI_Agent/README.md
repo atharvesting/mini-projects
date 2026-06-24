@@ -103,3 +103,8 @@ https://juntao.substack.com/p/building-an-ai-agent-from-scratch
 https://huggingface.co/learn/agents-course/en/unit1/dummy-agent-library
 
 https://docs.ollama.com/capabilities/structured-outputs#python
+
+
+To Read:
+https://openai.com/index/unrolling-the-codex-agent-loop/
+https://www.freecodecamp.org/news/how-to-guide-ai-with-rules-and-tests/

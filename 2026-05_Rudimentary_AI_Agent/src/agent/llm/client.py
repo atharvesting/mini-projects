@@ -1,6 +1,5 @@
 import requests
 from pydantic import BaseModel, ValidationError
-from typing import Any
 from time import sleep
 
 class ChatResponse(BaseModel):
@@ -8,6 +7,7 @@ class ChatResponse(BaseModel):
     tool_use: bool
     action: str | None
     action_input: dict | None
+    concluded: bool
 
 class Client:
     
@@ -15,47 +15,64 @@ class Client:
         self.model: str = model
         self.base_url: str = base_url
         self.session: requests.Session = requests.Session()
-    
-    def payload(self, messages: list[dict[str, str]]):
+
+    def payload(self, 
+                messages: list[dict[str, str]],
+                system: str | None = None,
+                format: dict | None = None,
+                think: bool = False
+    ):
+        if not messages:
+            return None
+        
         return {
             "model": self.model,
             "stream": False,
+            "prompt": str(messages),
+            # format clashes with thinking because it enforces strict per-token control to adhere to requried structure.
+            # This led to the use of a brain class that is used to generate thought processes, while maintaining strict
+            #   formatting in the final answer.
+            "format": format, 
+            "think": think,
+            "keep_alive": "10m",
             "options": {
                 "num_ctx": 2048,
                 "num_gpu": 99,
-                "low_vram": True,
+                # "low_vram": True,
                 "temperature": 0.0
             },
-            "prompt": str(messages),
-            "think": True,
-            "format": ChatResponse.model_json_schema(),
-            "keep_alive": "10m"
         }
     
     def generate(self, 
                  messages: list[dict[str, str]] = [], 
+                 system: str | None = None,
+                 format: dict | None = None,
+                 think: bool = False,
                  retries: int = 3
-        ) -> tuple[ChatResponse, str] | None:
-        
-        payload = self.payload(messages)
+        ) -> ChatResponse | None:
+
+        payload = self.payload(messages=messages,
+                          system=system,
+                          format=format,
+                          think=think)
+
         for _ in range(retries):
-            
             try:
                 r = self.session.post(self.base_url, json=payload, timeout=300)
                 r.raise_for_status()
-
-                response_data = r.json()
-                llm_string = response_data.get("response", "")
-                thinking_string = response_data.get("thinking", "")
-
-                validated_llm_string = ChatResponse.model_validate_json(llm_string)
-                return validated_llm_string, thinking_string
+                full_response_json = r.json()
+                response = full_response_json.get("response", "")
+                if format is None:
+                    return response
+                validated_response = ChatResponse.model_validate_json(response)
+                return validated_response
             
             except ValidationError as e:
                 print(e)
                 print(r.text)
                 sleep(1)
                 continue
+
             except (requests.exceptions.JSONDecodeError,
                     requests.exceptions.HTTPError,
                     requests.exceptions.ConnectTimeout,
@@ -63,6 +80,8 @@ class Client:
                 print(type(e), e)
                 sleep(1)
                 continue
+
         return None
-            
     
+
+# "response":"action = calculator\naction_input = {\"expression\": \"56 * 372 - 532\"}\nconcluded = True\nresponse = \"19840\"","done":true,
