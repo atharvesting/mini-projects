@@ -7,14 +7,12 @@
 #include <thread>
 
 int main() {
-    std::vector<int> vec{ 1, 2, 3, 4 };
-    auto v1 = Vector(vec);
-    printVec(v1);
-
-    auto v2 = v1 * 2;
-    printVec(v2);
-
-    std::cout << v1 * v2 << std::endl;
+    
+    auto m1 = mat_random_int_range(4, 4, 1, 9);
+    printMatrix(m1);
+    
+    auto lu = LU_decomp(m1);
+    lu.print();
 
     return 0;
 }

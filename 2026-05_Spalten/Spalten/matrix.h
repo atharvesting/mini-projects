@@ -151,18 +151,18 @@ public:
 
 	/// @brief Divide this vector by a scalar.
 	/// @tparam U The datatype of the scalar.
-	/// @param scalar The scalar to divide by.
+	/// @param divisor The scalar to divide by.
 	/// @return The result of the division.
 	template <typename U>
 	Vector<float> operator/(U divisor) const {
-		if (scalar == 0) throw std::invalid_argument("Divisor must not be Zero.");
+		if (divisor == 0) throw std::invalid_argument("Divisor must not be Zero.");
 		Vector<float> result(this->dim);
 		std::transform(std::execution::par_unseq, 
 			vec.begin(), 
 			vec.end(), 
 			result.begin(), 
 			[divisor](T val) { 
-				return static_cast<float>(val) / static_cast<float>(scalar); 
+				return static_cast<float>(val) / static_cast<float>(divisor); 
 			}
 		);
 		return result;
@@ -284,13 +284,13 @@ public:
 	/// @param r The number of rows.
 	/// @param c The number of columns.
 	Matrix(size_t r, size_t c)
-		: rows(r), cols(c), rix(r* c, T{}) {
+		: rows(r), cols(c), rix(r * c, T{}) {
 	}
 
 	/// @brief Construct a square matrix with the specified dimension. Filled with default values of the specified datatype.
 	/// @param dim The dimension of the square matrix.
 	Matrix(size_t dim)
-		: rows(dim), cols(dim), rix(dim* dim, T{}) {
+		: rows(dim), cols(dim), rix(dim * dim, T{}) {
 	}
 
 	/// @brief Construct a matrix with the specified dimensions and fill value.
@@ -312,9 +312,19 @@ public:
 		}
 	}
 
+	template <typename U>
+	Matrix(const Matrix<U>& other) : rows(other.rows), cols(other.cols), rix(other.rows * other.cols, T{}) {
+		std::transform(
+			std::execution::par_unseq,
+			other.rix.begin(), other.rix.end(),
+			this->rix.begin(), 
+			[](const U& val) { return static_cast<T>(val); }
+		);
+	}
+
 	/// @brief Check if the matrix is square.
 	/// @return The dimension of the square matrix if it is square, otherwise 0.
-	int is_square() {
+	int is_square() const {
 		if (this->rows == this->cols) 
 			return this->rows;
 		return 0;
@@ -539,9 +549,9 @@ Matrix<T> ones(size_t r, size_t c) {
 /// @return An identity matrix of the specified dimension.
 template <typename T>
 Matrix<T> identity(size_t dim) {
-	Matrix<int> identity = zeros<int>(dim, dim);
+	Matrix<T> identity = zeros<T>(dim, dim);
 	for (int i = 0; i < dim; i++)
-		identity(i, i) = T{ 1 };  // wh
+		identity(i, i) = T{ 1 };
 	return identity;
 }
 
@@ -799,10 +809,83 @@ Matrix<T> submatrix(const Matrix<T>& mat, std::set<int> exclude_rows, std::set<i
 	return result;
 }
 
-template <typename T>
-Matrix<T> fast_mult(const Matrix<T>& m1, const Matrix<T>& m2) {
-	if (m1.cols != m2.rows) 
-		throw std::invalid_argument("Matrix dimensions must be compatible for multiplication.");
 
+struct LU {
+	Matrix<float> L;
+	Matrix<float> U;
+
+	template <typename T>
+	LU(Matrix<T> og, size_t dim) : L(identity<float>(dim)), U(og) {
+		if (og.rows != dim || og.cols != dim)
+			throw std::invalid_argument("Mismatch between specified square dimension and input matrix dimensions.");
+	}
+
+	void print() {
+		std::cout << "L ";
+		printMatrix(L);
+		std::cout << "U ";
+		printMatrix(U);
+	}
+};
+
+template <typename T>
+LU LU_decomp(const Matrix<T>& mat) {
+	if (mat.is_square() == 0)
+		throw std::invalid_argument("Matrix must be a square matrix.");
 	
+	LU lu(mat, mat.rows);
+
+	// For each pivot element in U
+	for (size_t p = 0; p < mat.cols - 1; p++) 
+	{
+		float pivot = lu.U(p, p);
+		if (pivot == 0.0f)
+			throw std::runtime_error("Zero pivot error.");
+
+		// For each row in U under Pivot
+		for (size_t r = p + 1; r < mat.rows; r++) 
+		{
+			float multiplier = lu.U(r, p) / pivot;
+			lu.L(r, p) = multiplier;
+
+			// For each element in row
+			for (size_t c = p; c < mat.cols; c++) 
+			{
+				lu.U(r, c) -= multiplier * lu.U(p, c);
+			}
+		}
+	}
+	return lu;
+}
+
+template <typename T>
+Vector<T> fwd_substitution(const Matrix<T>& L, const Vector<T>& b) {
+	Vector<T> y(L.rows);
+
+	for (int i = 0; i < mat.rows; i++) {
+		float sum = 0.0f;
+
+		for (int j = 0; j < i; j++) {
+			sum += y(j) * L(i, j);
+		}
+		y(i) = (b(i) - sum) / L(i, i);
+	}
+	return y;
+}
+
+template <typename T>
+Matrix<float> inv_fast(const Matrix<T>& mat) {
+	if (mat.is_square() == 0)
+		throw std::invalid_argument("Matrix must be a square matrix.");
+
+	auto lu = LU_decomp(mat);
+	Matrix<float> result(mat.rows, mat.cols);
+
+	// FORWARD SUBSTITUTION
+	
+
+	// BACKWARD SUBSTITUTION
+
+
+	return result;
 }
