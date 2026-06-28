@@ -5,14 +5,12 @@
 #include "utils.h"
 #include <cmath>
 #include <iomanip>
-#include <unordered_map>
 #include <set>
 #include <numeric>
 #include <execution>
 #include <functional>
 #include <utility>
 #include <thread>
-#include <mutex>
 
 /// @brief A class representing a mathematical vector.
 /// @tparam T The datatype of the vector elements.
@@ -20,7 +18,7 @@ template <typename T>
 class Vector {
 public:
 	std::vector<T> vec;
-	int dim;
+	size_t dim;
 
 	/// @brief Construct a vector from a std::vector.
 	/// @param rray The std::vector to initialize the vector with.
@@ -34,8 +32,12 @@ public:
 
 	/// @brief Construct a vector with a specified dimension.
 	/// @param dim The dimension of the vector.
-	Vector(int dim)
+	Vector(size_t dim)
 		: dim(dim), vec(dim, T{ 0 }) { }
+
+	Vector(size_t dim, T val)
+		: dim(dim), vec(dim, T{ val }) {
+	}
 
 	using iterator = typename std::vector<T>::iterator;
 	using const_iterator = typename std::vector<T>::const_iterator;
@@ -56,47 +58,30 @@ public:
 	/// @return A const iterator to the end of the vector.
 	const_iterator end() const { return vec.end(); }
 
-	/// @brief Calculate the magnitude of a vector.
-	/// @param arr The std::vector for which to calculate the magnitude.
-	/// @return The magnitude of the vector.
-	static float magnitude(const std::vector<T>& arr) {
-		auto square_sum = std::reduce(
-			std::execution::par_unseq,
-			arr.begin(),
-			arr.end(),
-			T{ 0 },
-			[](T total, T num) { return total + num * num; }
-		);
-		return static_cast<float>(std::sqrt(square_sum));
-	}
-
-	/// @brief Calculate the magnitude of a Vector.
-	/// @param vector The vector object for which to calculate the magnitude.
-	/// @return The magnitude of the vector.
-	static float magnitude(const Vector<T>& vector) {
-		return magnitude(vector.vec);
-	}
-
 	/// @brief Check if the dimensions of this vector match those of another vector.
 	/// @param other The other vector to compare dimensions with.
 	/// @return True if the dimensions match, false otherwise.
 	bool dims_match(const Vector& other) const {
 		return this->dim == other.dim;
 	}
-	
-	/// @brief Get the element at a specific index.
-	/// @param idx The index of the element to retrieve.
-	/// @return The element at the specified index.
-	const T operator()(size_t idx) const {
-		if (0 > idx || idx >= this->dim) 
-			throw std::invalid_argument("Vector index out of range.");
-		return vec[idx];
+
+	bool empty() const {
+		return this->vec.begin() == this->vec.end();
 	}
 
 	/// @brief Get a mutable reference to the element at a specific index.
 	/// @param idx The index of the element to retrieve.
 	/// @return A mutable reference to the element at the specified index.
-	T operator()(size_t idx) {
+	T& operator()(size_t idx) {
+		if (0 > idx || idx >= this->dim)
+			throw std::invalid_argument("Vector index out of range.");
+		return vec[idx];
+	}
+	
+	/// @brief Get the element at a specific index.
+	/// @param idx The index of the element to retrieve.
+	/// @return The element at the specified index.
+	const T& operator()(size_t idx) const {
 		if (0 > idx || idx >= this->dim) 
 			throw std::invalid_argument("Vector index out of range.");
 		return vec[idx];
@@ -132,19 +117,20 @@ public:
 	/// @param other The other vector to calculate the dot product with.
 	/// @return The dot product of the two vectors.
 	T operator*(const Vector& other) const {
-		if (!dims_match(other)) throw std::invalid_argument("Vector dimensions must match.");
+		if (!dims_match(other)) 
+			throw std::invalid_argument("Vector dimensions must match.");
 		return std::transform_reduce(vec.begin(), vec.end(), other.begin(), 0, std::plus<T>(), std::multiplies<T>());
 	}
 
 	/// @brief Multiply this vector by a scalar.
 	/// @param scalar The scalar to multiply by.
 	/// @return The result of the multiplication.
-	Vector<T> operator*(const float scalar) const {
+	Vector<T> operator*(const float& scalar) const {
 		Vector<T> result(this->dim);
 		std::transform(std::execution::par_unseq,
 			vec.begin(),
 			vec.end(),
-			result.begin(), [scalar](T val) { return val * scalar; }
+			result.begin(), [&](T val) { return val * scalar; }
 		);
 		return result;
 	}
@@ -154,14 +140,14 @@ public:
 	/// @param divisor The scalar to divide by.
 	/// @return The result of the division.
 	template <typename U>
-	Vector<float> operator/(U divisor) const {
+	Vector<float> operator/(const U& divisor) const {
 		if (divisor == 0) throw std::invalid_argument("Divisor must not be Zero.");
 		Vector<float> result(this->dim);
 		std::transform(std::execution::par_unseq, 
 			vec.begin(), 
 			vec.end(), 
 			result.begin(), 
-			[divisor](T val) { 
+			[&](T val) { 
 				return static_cast<float>(val) / static_cast<float>(divisor); 
 			}
 		);
@@ -171,8 +157,9 @@ public:
 	/// @brief Normalize this vector.
 	/// @return The normalized vector.
 	Vector<float> normalize() const {
-		if (magnitude((*this)) == 0) throw std::invalid_argument("Cannot normalize a Zero-Vector.");
-		return (*this) / magnitude(*this);
+		auto mag = magnitude(*this);
+		if (mag == 0) throw std::invalid_argument("Cannot normalize a Zero-Vector.");
+		return (*this) / mag;
 	}
 
 	/// @brief Calculate the scalar projection of this vector onto another vector.
@@ -210,55 +197,81 @@ public:
 		return Vector<float>(std::move(converted));
 	}
 
-	/// @brief Perform the Gram-Schmidt process on a set of vectors.
-	/// @param input_vectors The vectors to orthogonalize.
-	/// @return An std::vector containing the orthogonal basis vectors.
-	static std::vector<Vector<float>> gram_schmidt(std::vector<Vector<T>>& input_vectors)
-	{
-		std::vector<Vector<float>> ortho_basis;
-		if (input_vectors.empty()) return ortho_basis;
 
-		ortho_basis.push_back(input_vectors[0].normalize());
-
-		for (size_t i = 1; i < input_vectors.size(); i++)
-		{
-			Vector<float> v = input_vectors[i].to_float();
-			for (const auto& basis : ortho_basis)
-			{
-				Vector<float> projection = input_vectors[i].to_float().vector_proj_on(basis);
-				v = v - projection;
-			}
-			ortho_basis.push_back(v.normalize());
-		}
-		return ortho_basis;
-	}
-
-	/// @brief Perform the Gram-Schmidt process on a set of vectors.
-	/// @tparam ...Args The types of the input vectors.
-	/// @param ...args The vectors to orthogonalize.
-	/// @return An std::vector containing the orthogonal basis vectors.
-	template <typename... Args>
-	static std::vector<Vector<float>> gram_schmidt(Args&&... args) 
-	{
-		std::vector<Vector<T>> input_vectors{ std::forward<Args>(args)... };
-		std::vector<Vector<float>> ortho_basis;
-		if (input_vectors.empty()) return ortho_basis;
-
-		ortho_basis.push_back(input_vectors[0].normalize());
-
-		for (size_t i = 1; i < input_vectors.size(); i++) 
-		{
-			Vector<float> v = input_vectors[i].to_float();
-			for (const auto& basis: ortho_basis) 
-			{
-				Vector<float> projection = input_vectors[i].to_float().vector_proj_on(basis);
-				v = v - projection;
-			}
-			ortho_basis.push_back(v.normalize());
-		}
-		return ortho_basis;
-	}
 };
+
+/// @brief Calculate the magnitude of a vector.
+/// @param arr The std::vector for which to calculate the magnitude.
+/// @return The magnitude of the vector.
+template <typename T>
+float magnitude(const std::vector<T>& arr) {
+	auto square_sum = std::reduce(
+		std::execution::par_unseq,
+		arr.begin(),
+		arr.end(),
+		T{ 0 },
+		[](T total, T num) { return total + num * num; }
+	);
+	return static_cast<float>(std::sqrt(square_sum));
+}
+
+/// @brief Calculate the magnitude of a Vector.
+/// @param vector The vector object for which to calculate the magnitude.
+/// @return The magnitude of the vector.
+template <typename T>
+float magnitude(const Vector<T>& vector) {
+	return magnitude(vector.vec);
+}
+
+/// @brief Perform the Gram-Schmidt process on a set of vectors.
+/// @param input_vectors The vectors to orthogonalize.
+/// @return An std::vector containing the orthogonal basis vectors.
+template <typename T>
+std::vector<Vector<float>> gram_schmidt(std::vector<Vector<T>>& input_vectors)
+{
+	std::vector<Vector<float>> ortho_basis;
+	if (input_vectors.empty()) return ortho_basis;
+
+	ortho_basis.push_back(input_vectors[0].normalize());
+
+	for (size_t i = 1; i < input_vectors.size(); i++)
+	{
+		Vector<float> v = input_vectors[i].to_float();
+		for (const auto& basis : ortho_basis)
+		{
+			Vector<float> projection = input_vectors[i].to_float().vector_proj_on(basis);
+			v = v - projection;
+		}
+		ortho_basis.push_back(v.normalize());
+	}
+	return ortho_basis;
+}
+
+/// @brief Perform the Gram-Schmidt process on a set of vectors.
+/// @tparam ...Args The types of the input vectors.
+/// @param ...args The vectors to orthogonalize.
+/// @return An std::vector containing the orthogonal basis vectors.
+template <typename T, typename... Args>
+std::vector<Vector<float>> gram_schmidt(Args&&... args)
+{
+	std::vector<Vector<T>> input_vectors{ std::forward<Args>(args)... };
+	std::vector<Vector<float>> ortho_basis;
+	if (input_vectors.empty()) return ortho_basis;
+
+	ortho_basis.push_back(input_vectors[0].normalize());
+
+	for (size_t i = 1; i < input_vectors.size(); i++)
+	{
+		Vector<float> v = input_vectors[i].to_float();
+		for (const auto& basis : ortho_basis)
+		{
+			Vector<float> projection = input_vectors[i].to_float().vector_proj_on(basis);
+			v = v - projection;
+		}
+		ortho_basis.push_back(v.normalize());
+	}
+	return ortho_basis;
+}
 
 /// @brief Print the elements of a vector to the console, each on a new line, followed by an empty line for separation.
 /// @tparam T The datatype of the vector elements.
@@ -306,10 +319,9 @@ public:
 	/// @param c The number of columns.
 	/// @param nums The list of values to initialize the matrix with.
 	Matrix(size_t r, size_t c, std::vector<T>&& nums)
-		: rows(r), cols(c) {
-		if (nums.size() == rows * cols) {
-			rix = std::move(nums);
-		}
+		: rows(r), cols(c), rix(std::move(nums)) {
+		if (rix.size() != rows * cols)
+			throw std::invalid_argument("Inexact amount of numbers provided.");
 	}
 
 	template <typename U>
@@ -616,19 +628,26 @@ Matrix<T> transpose(Matrix<T>& mat) {
 /// @param mat The matrix for which to calculate the determinant.
 /// @return The determinant of the matrix.
 template <typename T>
-int det(Matrix<T>& mat) {
+int det(const Matrix<T>& mat) {
 	if (mat.is_square() == 0) throw std::invalid_argument("Matrix must be a square matrix.");
-
+	if (mat.rows == 1) return mat(0, 0);
 	if (mat.rows == 2) return mat(0, 0) * mat(1, 1) - mat(1, 0) * mat(0, 1);
-	int result = 0;
-	Matrix<T> tmp(mat.rows - 1, mat.cols - 1);
 
-	for (int i = 0; i < mat.cols; i++)
-	{
-		tmp = submatrix(mat, 0, i);
-		result += det(tmp) * (std::pow(-1, i) * mat.rix[i]);
+	if (mat.rows < 5) {
+		int result = 0;
+		Matrix<T> tmp(mat.rows - 1, mat.cols - 1);
+
+		for (int i = 0; i < mat.cols; i++)
+		{
+			tmp = submatrix(mat, 0, i);
+			result += det(tmp) * (std::pow(-1, i) * mat.rix[i]);
+		}
+		return result;
 	}
-	return result;
+	else {
+		auto lu = LU_decomp(mat);
+		return diag_prod(lu.U);
+	}
 }
 
 /// @brief Find the cofactor matrix of a square matrix, 
@@ -668,17 +687,6 @@ Matrix<T> adj(Matrix<T>& mat) {
 	return transpose(cof);
 }
 
-/// @brief Find the inverse of a square matrix, which is the matrix that when multiplied by the original matrix gives the identity matrix.
-/// @tparam T The datatype of the matrix elements.
-/// @param mat The square matrix for which to find the inverse.
-/// @return The inverse of the matrix.
-template <typename T>
-Matrix<float> inv(Matrix<T>& mat) {
-	if (mat.is_square() == 0) throw std::invalid_argument("Matrix must be a square matrix.");
-
-	return adj(mat) * (static_cast<double>(1) / det(mat));
-}
-
 /// @brief Convert a matrix to an std::vector of Vector objects.
 /// @tparam T The datatype of the matrix elements.
 /// @param mat The matrix to convert.
@@ -688,9 +696,9 @@ std::vector<Vector<T>> mat_to_vecs(const Matrix<T>& mat) {
 	std::vector<T> tmp;
 	std::vector<Vector<T>> result;
 
-	for (size_t col = 0; col < mat.cols; col++) 
+	for (size_t col = 0; col < mat.cols; col++)
 	{
-		for (size_t row = 0; row < mat.rows; row++) 
+		for (size_t row = 0; row < mat.rows; row++)
 		{
 			tmp.push_back(mat(row, col));
 		}
@@ -714,12 +722,55 @@ Matrix<T> vecs_to_mat(std::vector<Vector<T>> vecs) {
 	for (const auto& vec : vecs) {
 		if (vec.dim != dim)
 			throw std::invalid_argument("All vectors must have the same size.");
-		
+
 		combined.append_range(vec);
 	}
 
 	Matrix<T> result(rows, cols, std::move(combined));
-	return -result;
+	return transpose(result);
+}
+
+/// @brief Find the inverse of a square matrix using LU decomposition and forward/backward substitution.
+/// @tparam T The datatype of the matrix elements.
+/// @param mat The square matrix for which to find the inverse.
+/// @return The inverse of the matrix.
+template <typename T>
+Matrix<float> inv(Matrix<T>& mat) {
+	if (mat.is_square() == 0)
+		throw std::invalid_argument("Matrix must be a square matrix.");
+
+	/* FINDING INVERSE OF MATRIX A
+	* We have A = LU and A x inv(A) = I, then LU * inv(A) = I
+	* We take y = U * inv(A), then Ly = I
+	* We can split y into n column vectors y1, y2,..., y_n. Same can be done for I - e1, e2,..., e_n
+	* This gives us n systems of simultaneous equations that we can solve to find y1, y2,..., y_n
+	*	L * y1 = e1, L * y2 = e2,..., L * yn = e_n
+	* After finding the matrix y, we have U * inv(A) = y
+	* Again, we can split inv(A) into i1, i2,..., i_n. Same can be done for y - y1, y2,..., y_n
+	* This gives us n systems of simultaneous equations that we can solve to find i1, i2,..., i_n
+	*	which are the n column vectors that make up the inv(A) matrix
+	*/
+
+	auto lu = LU_decomp(mat);
+
+	// FORWARD SUBSTITUTION
+
+	auto y_column_vecs = std::vector<Vector<float>>();
+	y_column_vecs.reserve(mat.rows);
+	auto id_column_vecs = mat_to_vecs(identity<float>(mat.rows));
+
+	for (int i = 0; i < mat.rows; i++)
+		y_column_vecs.push_back(fwd_substitution(lu.L, id_column_vecs[i]));
+
+	// BACKWARD SUBSTITUTION
+
+	auto inv_column_vecs = std::vector<Vector<float>>();
+	inv_column_vecs.reserve(mat.rows);
+
+	for (int i = 0; i < mat.rows; i++)
+		inv_column_vecs.push_back(bwd_substitution(lu.U, y_column_vecs[i]));
+
+	return vecs_to_mat(inv_column_vecs);
 }
 
 /// @brief Perform the Gram-Schmidt process on a matrix to produce an orthonormal basis.
@@ -809,7 +860,7 @@ Matrix<T> submatrix(const Matrix<T>& mat, std::set<int> exclude_rows, std::set<i
 	return result;
 }
 
-
+/// @brief Struct that holds the L and U matrices resulting from LU decomposition of a square matrix.
 struct LU {
 	Matrix<float> L;
 	Matrix<float> U;
@@ -828,6 +879,10 @@ struct LU {
 	}
 };
 
+/// @brief Perform LU decomposition on a square matrix.
+/// @tparam T The datatype of the matrix elements.
+/// @param mat The square matrix to decompose.
+/// @return The LU decomposition structure.
 template <typename T>
 LU LU_decomp(const Matrix<T>& mat) {
 	if (mat.is_square() == 0)
@@ -858,34 +913,73 @@ LU LU_decomp(const Matrix<T>& mat) {
 	return lu;
 }
 
-template <typename T>
-Vector<T> fwd_substitution(const Matrix<T>& L, const Vector<T>& b) {
-	Vector<T> y(L.rows);
+/// @brief Solve system of equations using forward substitution, given a lower triangular matrix L and a vector b.
+/// @tparam T The datatype of the matrix elements.
+/// @tparam U The datatype of the vector elements.
+/// @param L The lower triangular coefficient matrix.
+/// @param b The vector.
+/// @return The solution vector y.
+template <typename T, typename U>
+Vector<float> fwd_substitution(const Matrix<T>& L, const Vector<U>& b) {
+	if (L.rows != b.dim)
+		throw std::invalid_argument("Matrix and Vector dimensions must be compatible.");
 
-	for (int i = 0; i < mat.rows; i++) {
+	if (L.is_square() == 0)
+		throw std::invalid_argument("Insufficient data to solve simultaneous equations.");
+
+	Vector<float> y(L.rows);
+
+	for (int i = 0; i < L.rows; i++) {
 		float sum = 0.0f;
 
 		for (int j = 0; j < i; j++) {
 			sum += y(j) * L(i, j);
 		}
-		y(i) = (b(i) - sum) / L(i, i);
+		y(i) = static_cast<float>(b(i) - sum) / static_cast<float>(L(i, i));
 	}
 	return y;
 }
 
+/// @brief Solve system of equations using backward substitution, given an upper triangular matrix U and a vector y.
+/// @tparam T The datatype of the matrix elements.
+/// @tparam U_type The datatype of the vector elements.
+/// @param U The upper triangular coefficient matrix.
+/// @param y The vector.
+/// @return The solution vector x.
+template <typename T, typename U_type>
+Vector<float> bwd_substitution(const Matrix<T>& U, const Vector<U_type>& y) {
+	if (U.rows != y.dim)
+		throw std::invalid_argument("Matrix and Vector dimensions must be compatible.");
+
+	if (U.is_square() == 0)
+		throw std::invalid_argument("Insufficient data to solve simultaneous equations.");
+
+	Vector<float> x(U.rows);
+
+	for (int row = U.rows - 1; row >= 0; row--) {
+		float sum = 0.0f;
+
+		for (int col = row + 1; col < U.cols; col++) {
+			sum += U(row, col) * x(col);
+		}
+		
+		x(row) = static_cast<float>(y(row) - sum) / static_cast<float>(U(row, row));
+	}
+	return x;
+}
+
+/// @brief Calculate the product of all diagonal elements
+/// @tparam T The datatype of the matrix
+/// @param mat The square matrix for which to find the product of diagonals
+/// @return Product of diagonals
 template <typename T>
-Matrix<float> inv_fast(const Matrix<T>& mat) {
+T diag_prod(const Matrix<T>& mat) {
 	if (mat.is_square() == 0)
 		throw std::invalid_argument("Matrix must be a square matrix.");
 
-	auto lu = LU_decomp(mat);
-	Matrix<float> result(mat.rows, mat.cols);
-
-	// FORWARD SUBSTITUTION
-	
-
-	// BACKWARD SUBSTITUTION
-
-
-	return result;
+	T product = T{ 1 };
+	for (int i = 0; i < mat.rows; i++) {
+		product *= mat(i, i);
+	}
+	return product;
 }

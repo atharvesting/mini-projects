@@ -29,9 +29,82 @@ TEST(VectorTests, VectorDimValueConstructor) {
 }
 TEST(VectorTests, MagnitudeCalculations) {
     Vector<int> v1 = Vector<int>(std::vector<int>{3, 4});
-    EXPECT_EQ(Vector<int>::magnitude(v1.vec), 5.0f);
+    EXPECT_EQ(magnitude(v1.vec), 5.0f);
     auto v2 = Vector<float>(std::vector<float>{-4, 3});
-    EXPECT_EQ(5.0f, Vector<float>::magnitude(v2.vec));
+    EXPECT_EQ(5.0f, magnitude(v2.vec));
+}
+
+TEST(VectorTests, IteratorCheck) {
+	auto v1 = Vector<int>(std::vector<int>{3, 4, 5});
+	int sum = 0;
+	for (auto it = v1.begin(); it != v1.end(); ++it) {
+		sum += *it;
+	}
+	EXPECT_EQ(sum, 12);
+
+    auto v2 = Vector<int>(std::vector<int>{});
+    EXPECT_TRUE(v2.begin() == v2.end());
+}
+
+TEST(VectorTests, DimsMatch) {
+    Vector<int> v1(3, 5); // 3d vector filled with 5s
+    Vector<int> v2(3, 7); // 3d vector filled with 7s
+    EXPECT_TRUE(v1.dims_match(v2));
+
+    Vector<int> v3(4, 5);
+    EXPECT_FALSE(v2.dims_match(v3));
+
+    Vector<int> v4(std::vector<int>{});
+    EXPECT_FALSE(v3.dims_match(v4));
+
+    Vector<int> v5(std::vector<int>{});
+    EXPECT_TRUE(v4.dims_match(v5));
+}
+
+TEST(VectorTests, VectorEmpty) {
+    auto v1 = Vector<int>(std::vector<int>{});
+    EXPECT_EQ(v1.empty(), true);
+
+    auto v2 = Vector<int>(std::vector<int>{3, 4, 5});
+    EXPECT_EQ(v2.empty(), false);
+}
+
+TEST(VectorTests, CanAccessElements) {
+    Vector<float> v1(std::vector<float>{3, 4, 5});
+    EXPECT_EQ(v1(2), 5);
+    EXPECT_EQ(v1(0), 3);
+    v1(1) = 20;
+    EXPECT_EQ(v1(1), 20);
+    EXPECT_THROW(v1(4), std::invalid_argument);
+    EXPECT_THROW(v1(-1), std::invalid_argument);
+}
+
+TEST(VectorTests, ElementWise) {
+    Vector<float> v1(std::vector<float>{3, 4, 5});
+    Vector<float> v2(std::vector<float>{2, 3, 4});
+    auto v3 = v1 + v2;
+    for (int i = 0; i < 3; i++) {
+        EXPECT_EQ(v3(i), v1(i) + v2(i));
+    }
+    auto v4 = v1 - v2;
+    for (int i = 0; i < 3; i++) {
+        EXPECT_EQ(v4(i), v1(i) - v2(i));
+    }
+}
+TEST(VectorTests, DotProduct) {
+    Vector<float> v1(std::vector<float>{3, 4});
+    Vector<float> v2(std::vector<float>{2, 3});
+    EXPECT_EQ(v1 * v2, 18.0f);
+    Vector<float> v3(std::vector<float>{-3, 2});
+    EXPECT_EQ(v2 * v3, 0.0f);
+}
+
+TEST(VectorTests, IncompatibleDimensions) {
+	Vector<float> v1(std::vector<float>{3, 4});
+	Vector<float> v2(std::vector<float>{2, 3, 4});
+	EXPECT_THROW(v1 + v2, std::invalid_argument);
+	EXPECT_THROW(v1 - v2, std::invalid_argument);
+	EXPECT_THROW(v1 * v2, std::invalid_argument);
 }
 
 TEST(MatrixTests, CanFillAndAccessElements) {
