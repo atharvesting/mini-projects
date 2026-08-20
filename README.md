@@ -17,9 +17,6 @@
 
 - [Adaptive Markov Chain Text Predictor](2026-03_Markov_Predictor/README.md) (MVP): C++ Program that predicts the next word you type based on an n-gram model built in real time or with a pre-training text file.
 
-- [Spalten Matrix Library](2026-05_Spalten) (WIP): C++ library that provides the linear algebra
-foundations required for building neural networks.
-
 - [Rudimentary AI Agent](2026-05_Rudimentary_AI_Agent) (WIP): Minimal agent system written using Python.
 
 - [ESP32 Demos](2026-05_ESP32_Demos/README.md) (WIP): Collection of beginner-intermediate sketches that make use of the ESP32-S3 Sense board along with different kinds of components.
