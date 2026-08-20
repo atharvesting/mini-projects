@@ -1,0 +1,5 @@
+- Documentation on top of files.
+- Self-developed CMake configurations.
+- Test-driven development (TDD)
+- Single Point of Definition (SPOD)
+- Document everything you learn.

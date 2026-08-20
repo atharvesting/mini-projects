@@ -1,0 +1,1 @@
+- `valgrind path/to/executable` is enough for a useful memory report.

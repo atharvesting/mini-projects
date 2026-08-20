@@ -15,7 +15,9 @@
 
 ### Self-developed:
 
-- [Adaptive Markov Chain Text Predictor](2026-03_Markov_Predictor/README.md) (MVP): C++ Program that predicts the next word you type based on an n-gram model built in real time or with a pre-training text file.
+- [Database FS](2026-08_Database_FS) (WIP): Tutorial project for understanding database internals. Translated from C to C++.
+
+- [Adaptive Markov Chain Text Predictor](2026-03_Markov_Predictor) (MVP): C++ Program that predicts the next word you type based on an n-gram model built in real time or with a pre-training text file.
 
 - [Rudimentary AI Agent](2026-05_Rudimentary_AI_Agent) (WIP): Minimal agent system written using Python.
 
