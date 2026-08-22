@@ -16,3 +16,5 @@ details to be finalized soon.
 - [Basics on how to read Valgrind messages (Top Answer)](https://stackoverflow.com/questions/23791398/is-not-stackd-mallocd-or-recently-freed-when-all-the-variables-is-used)
 - [Overview of C's `getline()` function](https://c-for-dummies.com/blog/?p=1112)
 - [`std::getline()` on cppreference](https://en.cppreference.com/cpp/string/basic_string/getline)
+- [YT: Introduction to Google Test and CMake](https://youtu.be/Lp1ifh9TuFI?si=9TkdNSRF8UF6cusH)
+- [Helpful CMake with GTest instructions + `gtest_force_shared_crt` description](https://github.com/google/googletest/blob/main/googletest/README.md)

@@ -1,8 +1,25 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.20...4.4)
 
-project(database_fs)
+set(This Spenv)
 
-add_executable(
-    database_fs src/entry.cpp
+project(&{This} C CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+enable_testing()
+
+add_subdirectory(googletest)
+
+set(Headers
+    src/repl.hpp
+    )
+
+set(Sources
     src/repl.cpp
-    src/repl.hpp)
+    )
+
+add_library(${This} STATIC ${Sources} ${Headers})
+
+add_subdirectory(tests)

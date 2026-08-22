@@ -1,3 +1,4 @@
+#pragma once
 #include <memory>       // unique_ptr
 #include <string>       // string
 
@@ -7,8 +8,31 @@ typedef struct {
     int32_t input_length;
 } InputBuffer;
 
-std::unique_ptr<InputBuffer> new_input_buffer();
+using BufferPtr = std::unique_ptr<InputBuffer>;
 
+typedef enum {
+    META_COMMAND_SUCCESS,
+    META_COMMAND_UNRECOGNIZED_COMMAND
+} MetaCommandResult;
+
+typedef enum {
+    PREPARE_SUCCESS,
+    PREPARE_UNRECOGNIZED_STATEMENT
+} PrepareResult;
+
+typedef enum {
+    STATEMENT_INSERT,
+    STATEMENT_SELECT
+} StatementType;
+
+typedef struct {
+    StatementType type;
+} Statement;
+
+BufferPtr new_input_buffer();
 void print_prompt();
+void read_input(BufferPtr& input_buffer);
 
-void read_input(std::unique_ptr<InputBuffer>& input_buffer);
+MetaCommandResult do_meta_command(BufferPtr& input_buffer);
+PrepareResult prepare_statement(BufferPtr& input_buffer, Statement& statement);
+void execute_statement(Statement& statement);
